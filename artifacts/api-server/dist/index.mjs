@@ -79405,10 +79405,16 @@ OpenAI.Videos = Videos;
 
 // src/routes/openai/index.ts
 var router6 = (0, import_express6.Router)();
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY must be set");
+var _openai;
+function getOpenAI() {
+  if (!_openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY must be set");
+    }
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
 }
-var openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 var SYSTEM_PROMPT = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
 
 You help users of the SX Fund SED-Hub platform with:
@@ -79509,7 +79515,7 @@ router6.post("/openai/conversations/:id/messages", async (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   let fullResponse = "";
-  const stream = await openai.chat.completions.create({
+  const stream = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     max_completion_tokens: 2048,
     messages: chatMessages,
@@ -80043,7 +80049,7 @@ async function getOrCreateConversation(chatId, userName) {
   const [conv] = await db.insert(conversations).values({ title: tag }).returning();
   return conv.id;
 }
-var openai2 = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+var openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 async function getAIReply(chatId, userText, userName) {
   const convId = await getOrCreateConversation(chatId, userName);
   await db.insert(messages).values({
@@ -80059,7 +80065,7 @@ async function getAIReply(chatId, userText, userName) {
       content: m.content
     }))
   ];
-  const response = await openai2.chat.completions.create({
+  const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     max_completion_tokens: 1024,
     messages: chatMessages
