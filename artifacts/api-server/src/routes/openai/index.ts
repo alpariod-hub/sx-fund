@@ -155,12 +155,26 @@ router.post("/openai/conversations/:id/messages", async (req, res) => {
 
   let fullResponse = "";
 
-  const stream = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
-    max_completion_tokens: 2048,
-    messages: chatMessages,
-    stream: true,
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let stream: any;
+  try {
+    stream = await getOpenAI().chat.completions.create({
+      model: "gpt-4o-mini",
+      max_completion_tokens: 2048,
+      messages: chatMessages,
+      stream: true,
+    });
+  } catch (err: unknown) {
+    const e = err as { status?: number; message?: string };
+    if (e.status === 429) {
+      res.status(429).json({ error: "OpenAI quota exceeded. Please add billing at platform.openai.com" });
+    } else if (e.status === 401) {
+      res.status(401).json({ error: "Invalid OpenAI API key" });
+    } else {
+      res.status(500).json({ error: e.message ?? "OpenAI error" });
+    }
+    return;
+  }
 
   for await (const chunk of stream) {
     const delta = chunk.choices[0]?.delta?.content;

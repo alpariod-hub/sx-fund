@@ -66257,12 +66257,25 @@ router6.post("/openai/conversations/:id/messages", async (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   let fullResponse = "";
-  const stream = await getOpenAI().chat.completions.create({
-    model: "gpt-4o-mini",
-    max_completion_tokens: 2048,
-    messages: chatMessages,
-    stream: true
-  });
+  let stream;
+  try {
+    stream = await getOpenAI().chat.completions.create({
+      model: "gpt-4o-mini",
+      max_completion_tokens: 2048,
+      messages: chatMessages,
+      stream: true
+    });
+  } catch (err) {
+    const e = err;
+    if (e.status === 429) {
+      res.status(429).json({ error: "OpenAI quota exceeded. Please add billing at platform.openai.com" });
+    } else if (e.status === 401) {
+      res.status(401).json({ error: "Invalid OpenAI API key" });
+    } else {
+      res.status(500).json({ error: e.message ?? "OpenAI error" });
+    }
+    return;
+  }
   for await (const chunk of stream) {
     const delta = chunk.choices[0]?.delta?.content;
     if (delta) {
@@ -66357,7 +66370,7 @@ router7.post("/workspace/seed", async (_req, res) => {
     { fieldKey: "smart_wallet_ok", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "Smart Wallet \u2014 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0438\u043B\u0438 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439?", hint: "0x83309... \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C" },
     { fieldKey: "tx_hashes", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0435 txHash \u0434\u043B\u044F checkpoints (10 \u0441\u0434\u0435\u043B\u043E\u043A)", hint: "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C 0xabc001... \u043D\u0430 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0435" },
     { fieldKey: "oracle_provider", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "Oracle \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440 (Chainlink / \u043A\u0430\u0441\u0442\u043E\u043C\u043D\u044B\u0439)", hint: "\u041A\u0430\u043A \u0431\u0443\u0434\u0435\u0442 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0430\u0442\u044C CMR, \u0441\u043A\u043B\u0430\u0434?" },
-    { fieldKey: "gcp_ip_removed", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "IP \u0441\u0435\u0440\u0432\u0435\u0440\u0430 34.141.93.227 \u0443\u0431\u0440\u0430\u043D \u0438\u0437 \u043A\u043E\u0434\u0430?", hint: "\u041A\u0420\u0418\u0422\u0418\u0427\u041D\u041E \u2014 \u043F\u0435\u0440\u0435\u043D\u0435\u0441\u0442\u0438 \u0432 env-var" },
+    { fieldKey: "server_ip_hidden", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "IP \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u0441\u043A\u0440\u044B\u0442 \u0437\u0430 Cloudflare proxy?", hint: "api.trinityfund.io \u2192 Cloudflare ON \u2601\uFE0F" },
     { fieldKey: "centrifuge_deploy", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "Centrifuge \u043F\u0443\u043B \u0437\u0430\u0434\u0435\u043F\u043B\u043E\u0435\u043D?", hint: "app.centrifuge.io \u2014 \u0441\u0442\u0430\u0442\u0443\u0441" },
     { fieldKey: "nft_contract", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "NFT \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442 \u0434\u043B\u044F \u0440\u0430\u0441\u043F\u0438\u0441\u043E\u043A \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "ERC-1155 \u043D\u0430 Polygon" },
     { fieldKey: "auth_system", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "\u0410\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440-\u043F\u043E\u0440\u0442\u0430\u043B\u0430 (\u0432\u044B\u0431\u0440\u0430\u043D\u0430?)", hint: "Clerk, Supabase Auth, custom JWT" }
