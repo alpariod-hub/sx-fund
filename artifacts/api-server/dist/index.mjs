@@ -67006,7 +67006,7 @@ app_default.listen(port, (err) => {
     process.exit(1);
   }
   logger.info({ port }, "Server listening");
-  if (!process.env.TELEGRAM_WEBHOOK_URL) {
+  if (!process.env.TELEGRAM_WEBHOOK_URL && !process.env.REPL_ID) {
     startBot();
   }
 });
