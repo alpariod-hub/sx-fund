@@ -9,7 +9,7 @@ module.exports = {
   apps: [
     {
       name: "sx-fund-api",
-      script: "./artifacts/api-server/dist/index.mjs",
+      script: "/var/www/sx-fund/artifacts/api-server/dist/index.mjs",
 
       // Node flags
       node_args: "--enable-source-maps",
