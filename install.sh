@@ -135,15 +135,13 @@ info ".env.production written"
 
 # ── PM2 start / reload ────────────────────────────────────────────────────────
 section "9. PM2"
-export $(grep -v '^#' "${APP_DIR}/.env.production" | xargs)
+set -a; source "${APP_DIR}/.env.production"; set +a
 
 if pm2 describe sx-fund-api &>/dev/null; then
   pm2 reload sx-fund-api
   info "sx-fund-api reloaded"
 else
-  pm2 start "${APP_DIR}/deploy/ecosystem.config.cjs" \
-    --env production \
-    --env-file "${APP_DIR}/.env.production"
+  pm2 start "${APP_DIR}/deploy/ecosystem.config.cjs" --env production
   info "sx-fund-api started"
 fi
 
