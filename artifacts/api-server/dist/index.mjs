@@ -56412,43 +56412,9 @@ var oracle_default = router4;
 
 // src/routes/investors.ts
 var import_express5 = __toESM(require_express2(), 1);
-var router5 = (0, import_express5.Router)();
-router5.post("/investors/inquire", async (req, res) => {
-  const parsed = SubmitInvestorInquiryBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [inquiry] = await db.insert(investorInquiriesTable).values({
-    name: parsed.data.name,
-    email: parsed.data.email,
-    company: parsed.data.company ?? null,
-    investorType: parsed.data.investorType,
-    interestedTranche: parsed.data.interestedTranche,
-    message: parsed.data.message ?? null
-  }).returning();
-  res.status(201).json({
-    ...inquiry,
-    company: inquiry.company ?? null,
-    message: inquiry.message ?? null,
-    createdAt: inquiry.createdAt.toISOString()
-  });
-});
-router5.get("/investors/inquiries", async (_req, res) => {
-  const inquiries = await db.select().from(investorInquiriesTable).orderBy(investorInquiriesTable.createdAt);
-  res.json(
-    inquiries.map((i) => ({
-      ...i,
-      company: i.company ?? null,
-      message: i.message ?? null,
-      createdAt: i.createdAt.toISOString()
-    }))
-  );
-});
-var investors_default = router5;
 
-// src/routes/openai/index.ts
-var import_express6 = __toESM(require_express2(), 1);
+// src/bot/index.ts
+import { Bot, InlineKeyboard, webhookCallback } from "grammy";
 
 // ../../node_modules/.pnpm/openai@6.39.0_zod@3.25.76/node_modules/openai/internal/tslib.mjs
 function __classPrivateFieldSet(receiver, state, value, kind, f) {
@@ -66145,259 +66111,6 @@ OpenAI.Containers = Containers;
 OpenAI.Skills = Skills;
 OpenAI.Videos = Videos;
 
-// src/routes/openai/index.ts
-var router6 = (0, import_express6.Router)();
-var _openai;
-function getOpenAI() {
-  if (!_openai) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY must be set");
-    }
-    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return _openai;
-}
-var SYSTEM_PROMPT = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
-
-You help users of the SX Fund SED-Hub platform with:
-
-**Pool Management:**
-- Understanding the 3 tranches: DROP (70% allocation, 6-8% yield, senior), MEZZ (10% allocation, 10-12% yield), TIN (20% allocation, 15-18% yield, junior)
-- Explaining pool metrics, TVL, NAV calculations
-- Guiding through deal creation and asset origination workflow
-
-**Deals & Assets:**
-- FG Geniivske trade contracts (Oct 2025\u2013May 2026) \u2014 10 real contracts on IPFS
-- NFT metadata on Polygon blockchain, Centrifuge integration
-- Oracle event submission (contract_signed, prepayment_confirmed, goods_shipped, goods_received, payment_received, maturity)
-
-**Investors:**
-- Onboarding process: KYC/AML via AMLBot, investor types (institutional, crypto, family_office, individual)
-- Tranche selection guidance based on risk/return profile
-- Distribution schedules, yield calculations
-
-**Security & Compliance:**
-- Gnosis Safe 2-of-3 multisig setup
-- AML payment flow: unique temporary wallets \u2192 AMLBot check \u2192 Safe multisig
-- ChainGPT for smart contract auditing
-- Key management best practices
-
-**Technical:**
-- Polygon network, IPFS/Pinata document storage
-- Centrifuge protocol integration
-- Drizzle ORM, Express API, React/Vite frontend
-
-Always respond in the same language the user writes in (Ukrainian, Russian, or English).
-Be concise, professional, and actionable. When describing processes, use numbered steps.
-For on-chain actions, always remind about security best practices.`;
-router6.get("/openai/conversations", async (req, res) => {
-  const convs = await db.select().from(conversations).orderBy(asc(conversations.createdAt));
-  res.json(convs);
-});
-router6.post("/openai/conversations", async (req, res) => {
-  const { title } = req.body;
-  if (!title) {
-    res.status(400).json({ error: "title is required" });
-    return;
-  }
-  const [conv] = await db.insert(conversations).values({ title }).returning();
-  res.status(201).json(conv);
-});
-router6.get("/openai/conversations/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
-  if (!conv) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-  const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
-  res.json({ ...conv, messages: msgs });
-});
-router6.delete("/openai/conversations/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
-  if (!conv) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-  await db.delete(conversations).where(eq(conversations.id, id));
-  res.status(204).end();
-});
-router6.get("/openai/conversations/:id/messages", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
-  res.json(msgs);
-});
-router6.post("/openai/conversations/:id/messages", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const { content } = req.body;
-  if (!content) {
-    res.status(400).json({ error: "content is required" });
-    return;
-  }
-  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
-  if (!conv) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-  await db.insert(messages).values({
-    conversationId: id,
-    role: "user",
-    content
-  });
-  const history = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
-  const chatMessages = [
-    { role: "system", content: SYSTEM_PROMPT },
-    ...history.map((m) => ({
-      role: m.role,
-      content: m.content
-    }))
-  ];
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  let fullResponse = "";
-  let stream;
-  try {
-    stream = await getOpenAI().chat.completions.create({
-      model: "gpt-4o-mini",
-      max_completion_tokens: 2048,
-      messages: chatMessages,
-      stream: true
-    });
-  } catch (err) {
-    const e = err;
-    if (e.status === 429) {
-      res.status(429).json({ error: "OpenAI quota exceeded. Please add billing at platform.openai.com" });
-    } else if (e.status === 401) {
-      res.status(401).json({ error: "Invalid OpenAI API key" });
-    } else {
-      res.status(500).json({ error: e.message ?? "OpenAI error" });
-    }
-    return;
-  }
-  for await (const chunk of stream) {
-    const delta = chunk.choices[0]?.delta?.content;
-    if (delta) {
-      fullResponse += delta;
-      res.write(`data: ${JSON.stringify({ content: delta })}
-
-`);
-    }
-  }
-  await db.insert(messages).values({
-    conversationId: id,
-    role: "assistant",
-    content: fullResponse
-  });
-  res.write(`data: ${JSON.stringify({ done: true })}
-
-`);
-  res.end();
-});
-var openai_default = router6;
-
-// src/routes/workspace/index.ts
-var import_express7 = __toESM(require_express2(), 1);
-var router7 = (0, import_express7.Router)();
-router7.get("/workspace/entries", async (req, res) => {
-  const entries = await db.select().from(workspaceEntriesTable).orderBy(workspaceEntriesTable.id);
-  res.json(entries);
-});
-router7.patch("/workspace/entries/:key", async (req, res) => {
-  const key = req.params.key;
-  const parsed = patchWorkspaceEntrySchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues });
-    return;
-  }
-  const updates = {
-    ...parsed.data,
-    updatedAt: /* @__PURE__ */ new Date()
-  };
-  if (parsed.data.value !== void 0 && !parsed.data.status) {
-    updates.status = parsed.data.value.trim() ? "done" : "empty";
-  }
-  const [updated] = await db.update(workspaceEntriesTable).set(updates).where(eq(workspaceEntriesTable.fieldKey, key)).returning();
-  if (!updated) {
-    res.status(404).json({ error: "Entry not found" });
-    return;
-  }
-  res.json(updated);
-});
-router7.post("/workspace/seed", async (_req, res) => {
-  const DEFAULTS = [
-    // ── OWNERS ──────────────────────────────────────────────────────────────
-    { fieldKey: "llp_name_1", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u041F\u043E\u043B\u043D\u043E\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 LLP \u2014 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 1", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: SX Capital Partners LLP" },
-    { fieldKey: "llp_name_2", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u041F\u043E\u043B\u043D\u043E\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 LLP \u2014 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 2", hint: "\u0415\u0441\u043B\u0438 \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u044B\u0439 LLP" },
-    { fieldKey: "jurisdiction", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u042E\u0440\u0438\u0441\u0434\u0438\u043A\u0446\u0438\u044F \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438", hint: "UK, UAE, Malta, Cayman..." },
-    { fieldKey: "reg_number", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0439 \u043D\u043E\u043C\u0435\u0440 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438", hint: "Companies House number \u0438\u043B\u0438 \u0430\u043D\u0430\u043B\u043E\u0433" },
-    { fieldKey: "director_name", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u0418\u043C\u044F \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0430/\u0443\u043F\u0440\u0430\u0432\u043B\u044F\u044E\u0449\u0435\u0433\u043E \u043F\u0430\u0440\u0442\u043D\u0451\u0440\u0430 (\u043F\u0443\u0431\u043B\u0438\u0447\u043D\u043E\u0435)", hint: "\u0411\u0443\u0434\u0435\u0442 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u0430\u043C" },
-    { fieldKey: "safe_address", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "Gnosis Safe \u0430\u0434\u0440\u0435\u0441 (2-of-3)", hint: "0x... \u2014 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u0430 app.safe.global" },
-    { fieldKey: "pool_address", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "Centrifuge Pool \u0430\u0434\u0440\u0435\u0441 \u043D\u0430 Polygon", hint: "0x... \u043F\u043E\u0441\u043B\u0435 \u0434\u0435\u043F\u043B\u043E\u044F \u043F\u0443\u043B\u0430" },
-    { fieldKey: "centrifuge_pool", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "Centrifuge Pool ID", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: 0x1234abcd..." },
-    { fieldKey: "signatory_3", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "\u0422\u0440\u0435\u0442\u0438\u0439 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u0442 Safe (\u043A\u043E\u0448\u0435\u043B\u0451\u043A + \u0438\u043C\u044F)", hint: "\u0410\u043F\u043F\u0430\u0440\u0430\u0442\u043D\u044B\u0439 \u043A\u043E\u0448\u0435\u043B\u0451\u043A \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E" },
-    { fieldKey: "email_domain", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "\u041A\u043E\u0440\u043F\u043E\u0440\u0430\u0442\u0438\u0432\u043D\u044B\u0439 email \u0434\u043E\u043C\u0435\u043D", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: @sx-fund.com" },
-    { fieldKey: "contact_email", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "Email \u0434\u043B\u044F \u0437\u0430\u044F\u0432\u043E\u043A \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "invest@sx-fund.com" },
-    { fieldKey: "telegram_channel", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "Telegram \u043A\u0430\u043D\u0430\u043B / \u0433\u0440\u0443\u043F\u043F\u0430 \u0434\u043B\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "@sxfund \u0438\u043B\u0438 \u0441\u0441\u044B\u043B\u043A\u0430" },
-    { fieldKey: "website_domain", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "\u041A\u0430\u0441\u0442\u043E\u043C\u043D\u044B\u0439 \u0434\u043E\u043C\u0435\u043D \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B", hint: "app.sx-fund.com" },
-    { fieldKey: "owner1_name_pub", category: "\u041A\u043E\u043C\u0430\u043D\u0434\u0430", role: "owner", label: "\u041F\u0443\u0431\u043B\u0438\u0447\u043D\u043E\u0435 \u0438\u043C\u044F / \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u044B \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A\u0430 1", hint: "\u041C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043A\u0440\u0430\u0442\u043A\u043E\u0435 (A.K.)" },
-    { fieldKey: "owner2_name_pub", category: "\u041A\u043E\u043C\u0430\u043D\u0434\u0430", role: "owner", label: "\u041F\u0443\u0431\u043B\u0438\u0447\u043D\u043E\u0435 \u0438\u043C\u044F / \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u044B \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A\u0430 2", hint: "\u0411\u0443\u0434\u0435\u0442 \u043D\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0435 Team" },
-    // ── LEGAL ───────────────────────────────────────────────────────────────
-    { fieldKey: "spv_structure", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 SPV-\u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B (\u0435\u0441\u043B\u0438 \u0435\u0441\u0442\u044C)", hint: "\u0418\u0437\u043E\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u044E\u0440\u043B\u0438\u0446\u043E \u0434\u043B\u044F \u043F\u0443\u043B\u0430" },
-    { fieldKey: "regulator", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u041F\u0440\u0438\u043C\u0435\u043D\u0438\u043C\u044B\u0439 \u0440\u0435\u0433\u0443\u043B\u044F\u0442\u043E\u0440", hint: "FCA, SEC, \u043D\u0435\u0442 \u0440\u0435\u0433\u0443\u043B\u044F\u0442\u043E\u0440\u0430 \u2014 \u0443\u043A\u0430\u0437\u0430\u0442\u044C" },
-    { fieldKey: "mica_status", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u0421\u0442\u0430\u0442\u0443\u0441 MiCA / VASP \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438", hint: "EU, exemption, \u043D\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u043C\u043E" },
-    { fieldKey: "legal_advisor", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0441\u043E\u0432\u0435\u0442\u043D\u0438\u043A (\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0444\u0438\u0440\u043C\u044B)", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: Linklaters, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u0444\u0438\u0440\u043C\u0430" },
-    { fieldKey: "investment_memo", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Investment Memorandum (\u0441\u0441\u044B\u043B\u043A\u0430 \u0438\u043B\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C)", hint: "PDF \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0434\u043B\u044F due diligence" },
-    { fieldKey: "subscription_agr", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Subscription Agreement \u0448\u0430\u0431\u043B\u043E\u043D", hint: "\u041F\u043E\u0434\u043F\u0438\u0441\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u043C" },
-    { fieldKey: "framework_agr", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Framework Agreement \u0441 FG GENIIVSKE", hint: "\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u043D? \u0421\u0441\u044B\u043B\u043A\u0430 \u0438\u043B\u0438 \u0441\u0442\u0430\u0442\u0443\u0441" },
-    { fieldKey: "war_risk_disc", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Ukraine War Risk Disclosure", hint: "\u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0434\u043B\u044F \u043C\u0435\u0436\u0434\u0443\u043D\u0430\u0440\u043E\u0434\u043D\u044B\u0445 \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432" },
-    { fieldKey: "kyc_provider", category: "\u041A\u043E\u043C\u043F\u043B\u0430\u0435\u043D\u0441", role: "legal", label: "KYC/AML \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440", hint: "Sumsub, Synaps, Fractal, AMLBot API" },
-    { fieldKey: "aml_api_key", category: "\u041A\u043E\u043C\u043F\u043B\u0430\u0435\u043D\u0441", role: "legal", label: "AMLBot API \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0451\u043D? (\u0441\u0442\u0430\u0442\u0443\u0441)", hint: "\u0414\u0430 / \u041D\u0435\u0442 / \u0412 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u0435" },
-    // ── FINANCE ─────────────────────────────────────────────────────────────
-    { fieldKey: "real_tvl", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0439 TVL (\u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u0434\u0435\u043F\u043B\u043E\u0435\u043D\u043E, USDC)", hint: "\u041D\u0435 \u0446\u0435\u043B\u0435\u0432\u043E\u0439, \u0430 \u0442\u0435\u043A\u0443\u0449\u0438\u0439" },
-    { fieldKey: "real_yield_paid", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u0430\u044F \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0432\u044B\u043F\u043B\u0430\u0447\u0435\u043D\u0430 \u043F\u043E 7 \u0441\u0434\u0435\u043B\u043A\u0430\u043C", hint: "% \u0438\u043B\u0438 \u0441\u0443\u043C\u043C\u0430 \u0432 USDC" },
-    { fieldKey: "real_ltv", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0439 LTV (\u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0451\u043D \u043E\u0446\u0435\u043D\u0449\u0438\u043A\u043E\u043C)", hint: "\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u0444\u0430\u043A\u0442 vs 75% \u043F\u043B\u0430\u043D" },
-    { fieldKey: "mgmt_fee", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "Management Fee %", hint: "\u0420\u0435\u0430\u043B\u044C\u043D\u0430\u044F \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044F \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u044E\u0449\u0435\u0433\u043E" },
-    { fieldKey: "perf_fee", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "Performance Fee %", hint: "% \u043E\u0442 \u043F\u0440\u0438\u0431\u044B\u043B\u0438 \u0441\u0432\u0435\u0440\u0445 hurdle rate" },
-    { fieldKey: "min_ticket", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u041C\u0438\u043D\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0442\u0438\u043A\u0435\u0442 \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u0430 (USDC)", hint: "DROP: $10K? $50K?" },
-    { fieldKey: "lock_up_drop", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "Lock-up \u043F\u0435\u0440\u0438\u043E\u0434 DROP (\u0434\u043D\u0435\u0439)", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: 30, 90, 180" },
-    { fieldKey: "bank_statements", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "finance", label: "\u0411\u0430\u043D\u043A\u043E\u0432\u0441\u043A\u0438\u0435 \u0432\u044B\u043F\u0438\u0441\u043A\u0438 \u043F\u043E \u043F\u043E\u0433\u0430\u0448\u0451\u043D\u043D\u044B\u043C \u0441\u0434\u0435\u043B\u043A\u0430\u043C", hint: "\u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 IPFS \u0438\u043B\u0438 Google Drive" },
-    { fieldKey: "insurance", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0421\u0442\u0440\u0430\u0445\u043E\u0432\u0449\u0438\u043A \u0433\u0440\u0443\u0437\u0430 (\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435)", hint: "Marsh, Allianz, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439" },
-    { fieldKey: "auditor", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0412\u043D\u0435\u0448\u043D\u0438\u0439 \u0430\u0443\u0434\u0438\u0442\u043E\u0440 (\u0435\u0441\u043B\u0438 \u0435\u0441\u0442\u044C)", hint: "BDO, Grant Thornton, \u0434\u0440\u0443\u0433\u043E\u0439" },
-    // ── TECH ────────────────────────────────────────────────────────────────
-    { fieldKey: "server_wallet_ok", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "Server Wallet \u2014 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0438\u043B\u0438 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439?", hint: "0x7feEa... \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C" },
-    { fieldKey: "smart_wallet_ok", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "Smart Wallet \u2014 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0438\u043B\u0438 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439?", hint: "0x83309... \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C" },
-    { fieldKey: "tx_hashes", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0435 txHash \u0434\u043B\u044F checkpoints (10 \u0441\u0434\u0435\u043B\u043E\u043A)", hint: "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C 0xabc001... \u043D\u0430 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0435" },
-    { fieldKey: "oracle_provider", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "Oracle \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440 (Chainlink / \u043A\u0430\u0441\u0442\u043E\u043C\u043D\u044B\u0439)", hint: "\u041A\u0430\u043A \u0431\u0443\u0434\u0435\u0442 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0430\u0442\u044C CMR, \u0441\u043A\u043B\u0430\u0434?" },
-    { fieldKey: "server_ip_hidden", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "IP \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u0441\u043A\u0440\u044B\u0442 \u0437\u0430 Cloudflare proxy?", hint: "api.trinityfund.io \u2192 Cloudflare ON \u2601\uFE0F" },
-    { fieldKey: "centrifuge_deploy", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "Centrifuge \u043F\u0443\u043B \u0437\u0430\u0434\u0435\u043F\u043B\u043E\u0435\u043D?", hint: "app.centrifuge.io \u2014 \u0441\u0442\u0430\u0442\u0443\u0441" },
-    { fieldKey: "nft_contract", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "NFT \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442 \u0434\u043B\u044F \u0440\u0430\u0441\u043F\u0438\u0441\u043E\u043A \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "ERC-1155 \u043D\u0430 Polygon" },
-    { fieldKey: "auth_system", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "\u0410\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440-\u043F\u043E\u0440\u0442\u0430\u043B\u0430 (\u0432\u044B\u0431\u0440\u0430\u043D\u0430?)", hint: "Clerk, Supabase Auth, custom JWT" }
-  ];
-  let inserted = 0;
-  for (const item of DEFAULTS) {
-    try {
-      await db.insert(workspaceEntriesTable).values({
-        ...item,
-        value: "",
-        notes: "",
-        status: "empty",
-        updatedBy: ""
-      }).onConflictDoNothing();
-      inserted++;
-    } catch (_) {
-    }
-  }
-  res.json({ seeded: inserted, total: DEFAULTS.length });
-});
-var workspace_default = router7;
-
-// src/routes/deploy/index.ts
-var import_express8 = __toESM(require_express2(), 1);
-import { spawn } from "child_process";
-import { join } from "path";
-
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
 var isProduction = process.env.NODE_ENV === "production";
@@ -66416,55 +66129,8 @@ var logger = (0, import_pino.default)({
   }
 });
 
-// src/routes/deploy/index.ts
-var router8 = (0, import_express8.Router)();
-router8.get("/deploy-package", (req, res) => {
-  const adminSecret = process.env.ADMIN_SECRET;
-  if (adminSecret && req.headers["x-admin-secret"] !== adminSecret) {
-    res.status(403).json({ error: "Forbidden \u2014 set x-admin-secret header" });
-    return;
-  }
-  const ROOT = join(import.meta.dirname, "../../..");
-  const includes = [
-    "artifacts/api-server/dist",
-    "artifacts/api-server/package.json",
-    "deploy"
-  ];
-  const excludes = ["--exclude=*.map", "--exclude=*.tsbuildinfo"];
-  logger.info({ ip: req.ip }, "Deploy package download started");
-  res.setHeader("Content-Type", "application/gzip");
-  res.setHeader("Content-Disposition", "attachment; filename=sx-fund-deploy.tar.gz");
-  const tar = spawn(
-    "tar",
-    ["-czf", "-", ...excludes, ...includes],
-    { cwd: ROOT }
-  );
-  tar.stdout.pipe(res);
-  tar.stderr.on("data", (d) => {
-    logger.warn({ msg: d.toString() }, "tar warning");
-  });
-  tar.on("close", (code) => {
-    if (code !== 0) logger.error({ code }, "tar exited with error");
-  });
-  req.on("close", () => tar.kill());
-});
-var deploy_default = router8;
-
-// src/routes/index.ts
-var router9 = (0, import_express9.Router)();
-router9.use(health_default);
-router9.use(assets_default);
-router9.use(pool_default);
-router9.use(oracle_default);
-router9.use(investors_default);
-router9.use(openai_default);
-router9.use(workspace_default);
-router9.use(deploy_default);
-var routes_default = router9;
-
 // src/bot/index.ts
-import { Bot, InlineKeyboard, webhookCallback } from "grammy";
-var SYSTEM_PROMPT2 = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
+var SYSTEM_PROMPT = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
 
 You help users of the SX Fund SED-Hub platform with:
 
@@ -66483,7 +66149,7 @@ You help users of the SX Fund SED-Hub platform with:
 - DROP = conservative (6-8%), MEZZ = balanced (10-12%), TIN = aggressive (15-18%)
 
 **Security:**
-- Gnosis Safe 2-of-3 multisig (\u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 1 Ledger + \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 2 MetaMask + TBD)
+- Gnosis Safe 2-of-3 multisig (\u0410\u043D\u0434\u0440\u0435\u0439 Ledger + \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 MetaMask + TBD)
 - AML flow: unique temp wallet \u2192 AMLBot check \u2192 sweep to Safe
 - ChainGPT for smart contract auditing
 
@@ -66689,8 +66355,8 @@ async function handleSecurity(ctx) {
 6\\. \u0420\u0438\u0441\u043A\\-\u0430\u0434\u0440\u0435\u0441\u0430 \u2192 \u0437\u0430\u043C\u043E\u0440\u043E\u0436\u0435\u043D\u044B, \u0440\u0443\u0447\u043D\u0430\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
 
 *Gnosis Safe 2\\-of\\-3:*
-\u2022 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 1 \u2014 Ledger \\(\u0430\u043F\u043F\u0430\u0440\u0430\u0442\u043D\u044B\u0439\\)
-\u2022 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 2 \u2014 MetaMask/Rabby
+\u2022 \u0410\u043D\u0434\u0440\u0435\u0439 \u2014 Ledger \\(\u0430\u043F\u043F\u0430\u0440\u0430\u0442\u043D\u044B\u0439\\)
+\u2022 \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 \u2014 MetaMask/Rabby
 \u2022 \u041F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u0442 3 \u2014 TBD
 
 *\u0418\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B:*
@@ -66814,7 +66480,7 @@ async function getAIReply(chatId, userText, userName) {
   });
   const history = await db.select().from(messages).where(eq(messages.conversationId, convId)).orderBy(asc(messages.createdAt)).limit(20);
   const chatMessages = [
-    { role: "system", content: SYSTEM_PROMPT2 },
+    { role: "system", content: SYSTEM_PROMPT },
     ...history.map((m) => ({
       role: m.role,
       content: m.content
@@ -66902,6 +66568,15 @@ bot.on("message:text", async (ctx) => {
 bot.catch((err) => {
   logger.error({ err: err.error, update: err.ctx?.update }, "Telegram bot error");
 });
+async function notifyAdmin(text2) {
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!chatId) return;
+  try {
+    await bot.api.sendMessage(Number(chatId), text2, { parse_mode: "HTML" });
+  } catch (err) {
+    logger.warn({ err }, "notifyAdmin failed \u2014 continuing");
+  }
+}
 function getBotWebhookHandler() {
   return webhookCallback(bot, "express");
 }
@@ -66941,6 +66616,353 @@ function startBot() {
   });
   logger.info("Telegram bot polling started");
 }
+
+// src/routes/investors.ts
+var router5 = (0, import_express5.Router)();
+router5.post("/investors/inquire", async (req, res) => {
+  const parsed = SubmitInvestorInquiryBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [inquiry] = await db.insert(investorInquiriesTable).values({
+    name: parsed.data.name,
+    email: parsed.data.email,
+    company: parsed.data.company ?? null,
+    investorType: parsed.data.investorType,
+    interestedTranche: parsed.data.interestedTranche,
+    message: parsed.data.message ?? null
+  }).returning();
+  const trancheEmoji = { DROP: "\u{1F7E2}", MEZZ: "\u{1F7E1}", TIN: "\u{1F534}", both: "\u26AA" };
+  const typeLabel = { institutional: "\u0418\u043D\u0441\u0442\u0438\u0442\u0443\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439", family_office: "Family Office", crypto: "\u041A\u0440\u0438\u043F\u0442\u043E-\u0444\u043E\u043D\u0434", individual: "\u0427\u0430\u0441\u0442\u043D\u044B\u0439" };
+  void notifyAdmin(
+    `\u{1F4E9} <b>\u041D\u043E\u0432\u0430\u044F \u0437\u0430\u044F\u0432\u043A\u0430 \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u0430</b>
+
+\u{1F464} <b>${inquiry.name}</b>${inquiry.company ? ` \u2014 ${inquiry.company}` : ""}
+\u{1F4E7} ${inquiry.email}
+\u{1F3E6} ${typeLabel[inquiry.investorType] ?? inquiry.investorType}
+${trancheEmoji[inquiry.interestedTranche] ?? "\u26AA"} \u0422\u0440\u0430\u043D\u0448: <b>${inquiry.interestedTranche}</b>` + (inquiry.message ? `
+\u{1F4AC} ${inquiry.message}` : "") + `
+
+\u{1F517} <a href="https://sed-hub.trinityfund.io">\u041E\u0442\u043A\u0440\u044B\u0442\u044C SED-Hub \u2192 Investors</a>`
+  );
+  res.status(201).json({
+    ...inquiry,
+    company: inquiry.company ?? null,
+    message: inquiry.message ?? null,
+    createdAt: inquiry.createdAt.toISOString()
+  });
+});
+router5.get("/investors/inquiries", async (_req, res) => {
+  const inquiries = await db.select().from(investorInquiriesTable).orderBy(investorInquiriesTable.createdAt);
+  res.json(
+    inquiries.map((i) => ({
+      ...i,
+      company: i.company ?? null,
+      message: i.message ?? null,
+      createdAt: i.createdAt.toISOString()
+    }))
+  );
+});
+var investors_default = router5;
+
+// src/routes/openai/index.ts
+var import_express6 = __toESM(require_express2(), 1);
+var router6 = (0, import_express6.Router)();
+var _openai;
+function getOpenAI() {
+  if (!_openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY must be set");
+    }
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
+}
+var SYSTEM_PROMPT2 = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
+
+You help users of the SX Fund SED-Hub platform with:
+
+**Pool Management:**
+- Understanding the 3 tranches: DROP (70% allocation, 6-8% yield, senior), MEZZ (10% allocation, 10-12% yield), TIN (20% allocation, 15-18% yield, junior)
+- Explaining pool metrics, TVL, NAV calculations
+- Guiding through deal creation and asset origination workflow
+
+**Deals & Assets:**
+- FG Geniivske trade contracts (Oct 2025\u2013May 2026) \u2014 10 real contracts on IPFS
+- NFT metadata on Polygon blockchain, Centrifuge integration
+- Oracle event submission (contract_signed, prepayment_confirmed, goods_shipped, goods_received, payment_received, maturity)
+
+**Investors:**
+- Onboarding process: KYC/AML via AMLBot, investor types (institutional, crypto, family_office, individual)
+- Tranche selection guidance based on risk/return profile
+- Distribution schedules, yield calculations
+
+**Security & Compliance:**
+- Gnosis Safe 2-of-3 multisig setup
+- AML payment flow: unique temporary wallets \u2192 AMLBot check \u2192 Safe multisig
+- ChainGPT for smart contract auditing
+- Key management best practices
+
+**Technical:**
+- Polygon network, IPFS/Pinata document storage
+- Centrifuge protocol integration
+- Drizzle ORM, Express API, React/Vite frontend
+
+Always respond in the same language the user writes in (Ukrainian, Russian, or English).
+Be concise, professional, and actionable. When describing processes, use numbered steps.
+For on-chain actions, always remind about security best practices.`;
+router6.get("/openai/conversations", async (req, res) => {
+  const convs = await db.select().from(conversations).orderBy(asc(conversations.createdAt));
+  res.json(convs);
+});
+router6.post("/openai/conversations", async (req, res) => {
+  const { title } = req.body;
+  if (!title) {
+    res.status(400).json({ error: "title is required" });
+    return;
+  }
+  const [conv] = await db.insert(conversations).values({ title }).returning();
+  res.status(201).json(conv);
+});
+router6.get("/openai/conversations/:id", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
+  if (!conv) {
+    res.status(404).json({ error: "Conversation not found" });
+    return;
+  }
+  const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
+  res.json({ ...conv, messages: msgs });
+});
+router6.delete("/openai/conversations/:id", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
+  if (!conv) {
+    res.status(404).json({ error: "Conversation not found" });
+    return;
+  }
+  await db.delete(conversations).where(eq(conversations.id, id));
+  res.status(204).end();
+});
+router6.get("/openai/conversations/:id/messages", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
+  res.json(msgs);
+});
+router6.post("/openai/conversations/:id/messages", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { content } = req.body;
+  if (!content) {
+    res.status(400).json({ error: "content is required" });
+    return;
+  }
+  const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
+  if (!conv) {
+    res.status(404).json({ error: "Conversation not found" });
+    return;
+  }
+  await db.insert(messages).values({
+    conversationId: id,
+    role: "user",
+    content
+  });
+  const history = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
+  const chatMessages = [
+    { role: "system", content: SYSTEM_PROMPT2 },
+    ...history.map((m) => ({
+      role: m.role,
+      content: m.content
+    }))
+  ];
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  let fullResponse = "";
+  let stream;
+  try {
+    stream = await getOpenAI().chat.completions.create({
+      model: "gpt-4o-mini",
+      max_completion_tokens: 2048,
+      messages: chatMessages,
+      stream: true
+    });
+  } catch (err) {
+    const e = err;
+    if (e.status === 429) {
+      res.status(429).json({ error: "OpenAI quota exceeded. Please add billing at platform.openai.com" });
+    } else if (e.status === 401) {
+      res.status(401).json({ error: "Invalid OpenAI API key" });
+    } else {
+      res.status(500).json({ error: e.message ?? "OpenAI error" });
+    }
+    return;
+  }
+  for await (const chunk of stream) {
+    const delta = chunk.choices[0]?.delta?.content;
+    if (delta) {
+      fullResponse += delta;
+      res.write(`data: ${JSON.stringify({ content: delta })}
+
+`);
+    }
+  }
+  await db.insert(messages).values({
+    conversationId: id,
+    role: "assistant",
+    content: fullResponse
+  });
+  res.write(`data: ${JSON.stringify({ done: true })}
+
+`);
+  res.end();
+});
+var openai_default = router6;
+
+// src/routes/workspace/index.ts
+var import_express7 = __toESM(require_express2(), 1);
+var router7 = (0, import_express7.Router)();
+router7.get("/workspace/entries", async (req, res) => {
+  const entries = await db.select().from(workspaceEntriesTable).orderBy(workspaceEntriesTable.id);
+  res.json(entries);
+});
+router7.patch("/workspace/entries/:key", async (req, res) => {
+  const key = req.params.key;
+  const parsed = patchWorkspaceEntrySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues });
+    return;
+  }
+  const updates = {
+    ...parsed.data,
+    updatedAt: /* @__PURE__ */ new Date()
+  };
+  if (parsed.data.value !== void 0 && !parsed.data.status) {
+    updates.status = parsed.data.value.trim() ? "done" : "empty";
+  }
+  const [updated] = await db.update(workspaceEntriesTable).set(updates).where(eq(workspaceEntriesTable.fieldKey, key)).returning();
+  if (!updated) {
+    res.status(404).json({ error: "Entry not found" });
+    return;
+  }
+  res.json(updated);
+});
+router7.post("/workspace/seed", async (_req, res) => {
+  const DEFAULTS = [
+    // ── OWNERS ──────────────────────────────────────────────────────────────
+    { fieldKey: "llp_name_1", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u041F\u043E\u043B\u043D\u043E\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 LLP \u2014 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 1", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: SX Capital Partners LLP" },
+    { fieldKey: "llp_name_2", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u041F\u043E\u043B\u043D\u043E\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 LLP \u2014 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 2", hint: "\u0415\u0441\u043B\u0438 \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u044B\u0439 LLP" },
+    { fieldKey: "jurisdiction", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u042E\u0440\u0438\u0441\u0434\u0438\u043A\u0446\u0438\u044F \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438", hint: "UK, UAE, Malta, Cayman..." },
+    { fieldKey: "reg_number", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0439 \u043D\u043E\u043C\u0435\u0440 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438", hint: "Companies House number \u0438\u043B\u0438 \u0430\u043D\u0430\u043B\u043E\u0433" },
+    { fieldKey: "director_name", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u0418\u043C\u044F \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0430/\u0443\u043F\u0440\u0430\u0432\u043B\u044F\u044E\u0449\u0435\u0433\u043E \u043F\u0430\u0440\u0442\u043D\u0451\u0440\u0430 (\u043F\u0443\u0431\u043B\u0438\u0447\u043D\u043E\u0435)", hint: "\u0411\u0443\u0434\u0435\u0442 \u043F\u043E\u043A\u0430\u0437\u0430\u043D\u043E \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u0430\u043C" },
+    { fieldKey: "safe_address", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "Gnosis Safe \u0430\u0434\u0440\u0435\u0441 (2-of-3)", hint: "0x... \u2014 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u0430 app.safe.global" },
+    { fieldKey: "pool_address", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "Centrifuge Pool \u0430\u0434\u0440\u0435\u0441 \u043D\u0430 Polygon", hint: "0x... \u043F\u043E\u0441\u043B\u0435 \u0434\u0435\u043F\u043B\u043E\u044F \u043F\u0443\u043B\u0430" },
+    { fieldKey: "centrifuge_pool", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "Centrifuge Pool ID", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: 0x1234abcd..." },
+    { fieldKey: "signatory_3", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C on-chain", role: "owner", label: "\u0422\u0440\u0435\u0442\u0438\u0439 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u0442 Safe (\u043A\u043E\u0448\u0435\u043B\u0451\u043A + \u0438\u043C\u044F)", hint: "\u0410\u043F\u043F\u0430\u0440\u0430\u0442\u043D\u044B\u0439 \u043A\u043E\u0448\u0435\u043B\u0451\u043A \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E" },
+    { fieldKey: "email_domain", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "\u041A\u043E\u0440\u043F\u043E\u0440\u0430\u0442\u0438\u0432\u043D\u044B\u0439 email \u0434\u043E\u043C\u0435\u043D", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: @sx-fund.com" },
+    { fieldKey: "contact_email", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "Email \u0434\u043B\u044F \u0437\u0430\u044F\u0432\u043E\u043A \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "invest@sx-fund.com" },
+    { fieldKey: "telegram_channel", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "Telegram \u043A\u0430\u043D\u0430\u043B / \u0433\u0440\u0443\u043F\u043F\u0430 \u0434\u043B\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "@sxfund \u0438\u043B\u0438 \u0441\u0441\u044B\u043B\u043A\u0430" },
+    { fieldKey: "website_domain", category: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B", role: "owner", label: "\u041A\u0430\u0441\u0442\u043E\u043C\u043D\u044B\u0439 \u0434\u043E\u043C\u0435\u043D \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B", hint: "app.sx-fund.com" },
+    { fieldKey: "owner1_name_pub", category: "\u041A\u043E\u043C\u0430\u043D\u0434\u0430", role: "owner", label: "\u041F\u0443\u0431\u043B\u0438\u0447\u043D\u043E\u0435 \u0438\u043C\u044F / \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u044B \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A\u0430 1", hint: "\u041C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043A\u0440\u0430\u0442\u043A\u043E\u0435 (A.K.)" },
+    { fieldKey: "owner2_name_pub", category: "\u041A\u043E\u043C\u0430\u043D\u0434\u0430", role: "owner", label: "\u041F\u0443\u0431\u043B\u0438\u0447\u043D\u043E\u0435 \u0438\u043C\u044F / \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u044B \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A\u0430 2", hint: "\u0411\u0443\u0434\u0435\u0442 \u043D\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0435 Team" },
+    // ── LEGAL ───────────────────────────────────────────────────────────────
+    { fieldKey: "spv_structure", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 SPV-\u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B (\u0435\u0441\u043B\u0438 \u0435\u0441\u0442\u044C)", hint: "\u0418\u0437\u043E\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u044E\u0440\u043B\u0438\u0446\u043E \u0434\u043B\u044F \u043F\u0443\u043B\u0430" },
+    { fieldKey: "regulator", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u041F\u0440\u0438\u043C\u0435\u043D\u0438\u043C\u044B\u0439 \u0440\u0435\u0433\u0443\u043B\u044F\u0442\u043E\u0440", hint: "FCA, SEC, \u043D\u0435\u0442 \u0440\u0435\u0433\u0443\u043B\u044F\u0442\u043E\u0440\u0430 \u2014 \u0443\u043A\u0430\u0437\u0430\u0442\u044C" },
+    { fieldKey: "mica_status", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u0421\u0442\u0430\u0442\u0443\u0441 MiCA / VASP \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438", hint: "EU, exemption, \u043D\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u043C\u043E" },
+    { fieldKey: "legal_advisor", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "legal", label: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0441\u043E\u0432\u0435\u0442\u043D\u0438\u043A (\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0444\u0438\u0440\u043C\u044B)", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: Linklaters, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u0444\u0438\u0440\u043C\u0430" },
+    { fieldKey: "investment_memo", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Investment Memorandum (\u0441\u0441\u044B\u043B\u043A\u0430 \u0438\u043B\u0438 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C)", hint: "PDF \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442 \u0434\u043B\u044F due diligence" },
+    { fieldKey: "subscription_agr", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Subscription Agreement \u0448\u0430\u0431\u043B\u043E\u043D", hint: "\u041F\u043E\u0434\u043F\u0438\u0441\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u043C" },
+    { fieldKey: "framework_agr", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Framework Agreement \u0441 FG GENIIVSKE", hint: "\u041F\u043E\u0434\u043F\u0438\u0441\u0430\u043D? \u0421\u0441\u044B\u043B\u043A\u0430 \u0438\u043B\u0438 \u0441\u0442\u0430\u0442\u0443\u0441" },
+    { fieldKey: "war_risk_disc", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "legal", label: "Ukraine War Risk Disclosure", hint: "\u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0434\u043B\u044F \u043C\u0435\u0436\u0434\u0443\u043D\u0430\u0440\u043E\u0434\u043D\u044B\u0445 \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432" },
+    { fieldKey: "kyc_provider", category: "\u041A\u043E\u043C\u043F\u043B\u0430\u0435\u043D\u0441", role: "legal", label: "KYC/AML \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440", hint: "Sumsub, Synaps, Fractal, AMLBot API" },
+    { fieldKey: "aml_api_key", category: "\u041A\u043E\u043C\u043F\u043B\u0430\u0435\u043D\u0441", role: "legal", label: "AMLBot API \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0451\u043D? (\u0441\u0442\u0430\u0442\u0443\u0441)", hint: "\u0414\u0430 / \u041D\u0435\u0442 / \u0412 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u0435" },
+    // ── FINANCE ─────────────────────────────────────────────────────────────
+    { fieldKey: "real_tvl", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0439 TVL (\u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u0434\u0435\u043F\u043B\u043E\u0435\u043D\u043E, USDC)", hint: "\u041D\u0435 \u0446\u0435\u043B\u0435\u0432\u043E\u0439, \u0430 \u0442\u0435\u043A\u0443\u0449\u0438\u0439" },
+    { fieldKey: "real_yield_paid", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u0430\u044F \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0432\u044B\u043F\u043B\u0430\u0447\u0435\u043D\u0430 \u043F\u043E 7 \u0441\u0434\u0435\u043B\u043A\u0430\u043C", hint: "% \u0438\u043B\u0438 \u0441\u0443\u043C\u043C\u0430 \u0432 USDC" },
+    { fieldKey: "real_ltv", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0439 LTV (\u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0451\u043D \u043E\u0446\u0435\u043D\u0449\u0438\u043A\u043E\u043C)", hint: "\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u0444\u0430\u043A\u0442 vs 75% \u043F\u043B\u0430\u043D" },
+    { fieldKey: "mgmt_fee", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "Management Fee %", hint: "\u0420\u0435\u0430\u043B\u044C\u043D\u0430\u044F \u043A\u043E\u043C\u0438\u0441\u0441\u0438\u044F \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u044E\u0449\u0435\u0433\u043E" },
+    { fieldKey: "perf_fee", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "Performance Fee %", hint: "% \u043E\u0442 \u043F\u0440\u0438\u0431\u044B\u043B\u0438 \u0441\u0432\u0435\u0440\u0445 hurdle rate" },
+    { fieldKey: "min_ticket", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u041C\u0438\u043D\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0442\u0438\u043A\u0435\u0442 \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u0430 (USDC)", hint: "DROP: $10K? $50K?" },
+    { fieldKey: "lock_up_drop", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "Lock-up \u043F\u0435\u0440\u0438\u043E\u0434 DROP (\u0434\u043D\u0435\u0439)", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: 30, 90, 180" },
+    { fieldKey: "bank_statements", category: "\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B", role: "finance", label: "\u0411\u0430\u043D\u043A\u043E\u0432\u0441\u043A\u0438\u0435 \u0432\u044B\u043F\u0438\u0441\u043A\u0438 \u043F\u043E \u043F\u043E\u0433\u0430\u0448\u0451\u043D\u043D\u044B\u043C \u0441\u0434\u0435\u043B\u043A\u0430\u043C", hint: "\u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 IPFS \u0438\u043B\u0438 Google Drive" },
+    { fieldKey: "insurance", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0421\u0442\u0440\u0430\u0445\u043E\u0432\u0449\u0438\u043A \u0433\u0440\u0443\u0437\u0430 (\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435)", hint: "Marsh, Allianz, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439" },
+    { fieldKey: "auditor", category: "\u0424\u0438\u043D\u0430\u043D\u0441\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", role: "finance", label: "\u0412\u043D\u0435\u0448\u043D\u0438\u0439 \u0430\u0443\u0434\u0438\u0442\u043E\u0440 (\u0435\u0441\u043B\u0438 \u0435\u0441\u0442\u044C)", hint: "BDO, Grant Thornton, \u0434\u0440\u0443\u0433\u043E\u0439" },
+    // ── TECH ────────────────────────────────────────────────────────────────
+    { fieldKey: "server_wallet_ok", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "Server Wallet \u2014 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0438\u043B\u0438 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439?", hint: "0x7feEa... \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C" },
+    { fieldKey: "smart_wallet_ok", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "Smart Wallet \u2014 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0438\u043B\u0438 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0439?", hint: "0x83309... \u2014 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C" },
+    { fieldKey: "tx_hashes", category: "On-chain \u0430\u0434\u0440\u0435\u0441\u0430", role: "tech", label: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0435 txHash \u0434\u043B\u044F checkpoints (10 \u0441\u0434\u0435\u043B\u043E\u043A)", hint: "\u0417\u0430\u043C\u0435\u043D\u0438\u0442\u044C 0xabc001... \u043D\u0430 \u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0435" },
+    { fieldKey: "oracle_provider", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "Oracle \u043F\u0440\u043E\u0432\u0430\u0439\u0434\u0435\u0440 (Chainlink / \u043A\u0430\u0441\u0442\u043E\u043C\u043D\u044B\u0439)", hint: "\u041A\u0430\u043A \u0431\u0443\u0434\u0435\u0442 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0430\u0442\u044C CMR, \u0441\u043A\u043B\u0430\u0434?" },
+    { fieldKey: "server_ip_hidden", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "IP \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u0441\u043A\u0440\u044B\u0442 \u0437\u0430 Cloudflare proxy?", hint: "api.trinityfund.io \u2192 Cloudflare ON \u2601\uFE0F" },
+    { fieldKey: "centrifuge_deploy", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "Centrifuge \u043F\u0443\u043B \u0437\u0430\u0434\u0435\u043F\u043B\u043E\u0435\u043D?", hint: "app.centrifuge.io \u2014 \u0441\u0442\u0430\u0442\u0443\u0441" },
+    { fieldKey: "nft_contract", category: "\u0418\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438", role: "tech", label: "NFT \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442 \u0434\u043B\u044F \u0440\u0430\u0441\u043F\u0438\u0441\u043E\u043A \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432", hint: "ERC-1155 \u043D\u0430 Polygon" },
+    { fieldKey: "auth_system", category: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", role: "tech", label: "\u0410\u0443\u0442\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440-\u043F\u043E\u0440\u0442\u0430\u043B\u0430 (\u0432\u044B\u0431\u0440\u0430\u043D\u0430?)", hint: "Clerk, Supabase Auth, custom JWT" }
+  ];
+  let inserted = 0;
+  for (const item of DEFAULTS) {
+    try {
+      await db.insert(workspaceEntriesTable).values({
+        ...item,
+        value: "",
+        notes: "",
+        status: "empty",
+        updatedBy: ""
+      }).onConflictDoNothing();
+      inserted++;
+    } catch (_) {
+    }
+  }
+  res.json({ seeded: inserted, total: DEFAULTS.length });
+});
+var workspace_default = router7;
+
+// src/routes/deploy/index.ts
+var import_express8 = __toESM(require_express2(), 1);
+import { spawn } from "child_process";
+import { join } from "path";
+var router8 = (0, import_express8.Router)();
+router8.get("/deploy-package", (req, res) => {
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (adminSecret && req.headers["x-admin-secret"] !== adminSecret) {
+    res.status(403).json({ error: "Forbidden \u2014 set x-admin-secret header" });
+    return;
+  }
+  const ROOT = join(import.meta.dirname, "../../..");
+  const includes = [
+    "artifacts/api-server/dist",
+    "artifacts/api-server/package.json",
+    "deploy"
+  ];
+  const excludes = ["--exclude=*.map", "--exclude=*.tsbuildinfo"];
+  logger.info({ ip: req.ip }, "Deploy package download started");
+  res.setHeader("Content-Type", "application/gzip");
+  res.setHeader("Content-Disposition", "attachment; filename=sx-fund-deploy.tar.gz");
+  const tar = spawn(
+    "tar",
+    ["-czf", "-", ...excludes, ...includes],
+    { cwd: ROOT }
+  );
+  tar.stdout.pipe(res);
+  tar.stderr.on("data", (d) => {
+    logger.warn({ msg: d.toString() }, "tar warning");
+  });
+  tar.on("close", (code) => {
+    if (code !== 0) logger.error({ code }, "tar exited with error");
+  });
+  req.on("close", () => tar.kill());
+});
+var deploy_default = router8;
+
+// src/routes/index.ts
+var router9 = (0, import_express9.Router)();
+router9.use(health_default);
+router9.use(assets_default);
+router9.use(pool_default);
+router9.use(oracle_default);
+router9.use(investors_default);
+router9.use(openai_default);
+router9.use(workspace_default);
+router9.use(deploy_default);
+var routes_default = router9;
 
 // src/app.ts
 var app = (0, import_express10.default)();
