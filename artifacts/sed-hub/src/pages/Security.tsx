@@ -36,7 +36,7 @@ export default function Security() {
             { icon: FileWarning, color: "text-rose-400",    rule: "Seed-фраза НИКОГДА не хранится в цифровом виде",            detail: "Нельзя: телефон, облако, email, фото, ноутбук. Только бумага — желательно стальная гравировка (Cryptosteel/Bilodal)." },
             { icon: Lock,        color: "text-amber-400",   rule: "Два физических экземпляра seed-фразы в разных местах",       detail: "Например: сейф в офисе + банковская ячейка. Если одно место недоступно — второй экземпляр всегда есть." },
             { icon: RefreshCw,   color: "text-blue-400",    rule: "Политика ротации кошельков",                                 detail: "Рабочие горячие кошельки обновляются раз в 6 месяцев или после любого подозрительного события. Safe (multisig) — основной постоянный кошелёк для хранения." },
-            { icon: Wallet,      color: "text-violet-400",  rule: "Аппаратный кошелёк для ключевых операций",                  detail: "Андрей (Ledger) + Валя (MetaMask/Rabby) — каждый со своей seed на бумаге. Safe требует 2-of-3 для любой отправки." },
+            { icon: Wallet,      color: "text-violet-400",  rule: "Аппаратный кошелёк для ключевых операций",                  detail: "Андрей (Ledger) + Григорий (MetaMask/Rabby) — каждый со своей seed на бумаге. Safe требует 2-of-3 для любой отправки." },
           ].map((item) => (
             <div key={item.rule} className="flex gap-3 p-3 rounded-lg border border-border bg-muted/10">
               <item.icon className={`h-5 w-5 shrink-0 mt-0.5 ${item.color}`} />
@@ -162,8 +162,8 @@ export default function Security() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { role: "Андрей (LLP)", label: "Подписант 1", wallet: "Ledger (аппаратный)",  color: "text-violet-400", bg: "bg-violet-400/10 border-violet-400/30" },
-              { role: "Валя (LLP)",   label: "Подписант 2", wallet: "MetaMask / Rabby",      color: "text-blue-400",   bg: "bg-blue-400/10 border-blue-400/30" },
+              { role: "Андрей (LLP)",   label: "Подписант 1", wallet: "Ledger (аппаратный)",  color: "text-violet-400", bg: "bg-violet-400/10 border-violet-400/30" },
+              { role: "Григорий (LLP)", label: "Подписант 2", wallet: "MetaMask / Rabby",      color: "text-blue-400",   bg: "bg-blue-400/10 border-blue-400/30" },
               { role: "TBD",                 label: "Подписант 3", wallet: "Аппаратный кошелёк",   color: "text-muted-foreground", bg: "bg-muted/20 border-border" },
             ].map(s => (
               <div key={s.role} className={`rounded-lg border p-4 ${s.bg}`}>
