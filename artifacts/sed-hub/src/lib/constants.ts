@@ -85,7 +85,7 @@ export const ORACLE_CHECKPOINTS = [
 const IPFS = "https://gateway.pinata.cloud/ipfs";
 
 // Root manifest CID (full JSON index of all 10 deals)
-export const IPFS_MANIFEST_CID = "QmeghB6yMHHznFp6tBW7cLTeLAsHrNLo6sFkPXnMKRMsvS";
+export const IPFS_MANIFEST_CID = "QmaehfVrCgq8sCaBJRE447zHWtPVMy2Swi7yJEP3Hc4ejk";
 
 // Root-level documents (deal overview xlsx + debt calendar pdf)
 export const ROOT_DOCS = {
