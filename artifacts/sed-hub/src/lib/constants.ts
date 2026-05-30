@@ -101,13 +101,20 @@ export const ROOT_DOCS = {
   },
 };
 
-// On-chain infrastructure (public addresses only — no API keys, no server IPs)
+// On-chain infrastructure
+// ⚠️  Old wallets (0x7feE... and 0x83309B8c...) are FROZEN/COMPROMISED — never use them
 export const INFRASTRUCTURE = {
   network: "Polygon",
-  serverWallet: "0x7feEa1A1aB35E8fAFe71f473269C68951f0DB793",
-  smartWallet: "0x83309B8c28B9DbC6386F0C68962D00B33A0bd80c",
-  safeAddress: "TBD — 2-of-3 multisig",
-  // gcpVM IP removed — never store server IPs in client code
+  // Deployer: new clean wallet — must be created in a fresh ThirdWeb project (Andrey)
+  deployerWallet: "TBD — новый ThirdWeb проект (Андрей)",
+  // Safe 2-of-3: Ledger (Григорий) + MetaMask (Данил) + третий (на усмотрение Григория)
+  safeAddress: "TBD — создать на app.safe.global",
+  safeThreshold: "2-of-3",
+  safeSigners: [
+    { role: "Signatory 1", name: "Григорий", device: "Ledger (в сейфе)", status: "ready" },
+    { role: "Signatory 2", name: "Данил",    device: "MetaMask",          status: "ready" },
+    { role: "Signatory 3", name: "TBD",      device: "На усмотрение Григория", status: "tbd" },
+  ],
 };
 
 // Real FG Geniivske trade contracts — OSKUTUOTE OY (FI) → CEREAL CROPS TRADING LLP (UK) → FG GENIIVSKE (UA)
