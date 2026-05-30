@@ -391,56 +391,76 @@ async function handleHelp(ctx: Context) {
 
 // ─── Team chat IDs (from PM2 config) ──────────────────────────────────────────
 
-const TEAM: Record<string, { name: string; chatId: number; role: string; steps: string[] }> = {
+const TEAM: Record<string, { name: string; chatId: number; role: string; emoji: string; steps: string[]; rules: string[] }> = {
   alpariod: {
     name: "Андрей",
     chatId: 8532055371,
-    role: "Owner · Tech Lead",
+    role: "Admin · Deployer",
+    emoji: "🔵",
     steps: [
-      "1️⃣ *ThirdWeb* — создай новый проект на [app.thirdweb.com](https://thirdweb.com/dashboard) → получи адрес нового deployer wallet (clean wallet!)",
-      "2️⃣ Пополни deployer wallet *MATIC* (~$5–10 для gas) через Binance/MetaMask",
-      "3️⃣ Пришли адрес deployer wallet в чат → обновим в системе",
-      "4️⃣ После создания Safe → задеплой пул-контракт через thirdweb dashboard",
-      "5️⃣ Проголосуй в SED-Hub /dao по dao-001 и dao-005",
+      "📅 *День 1–2: Кошельки*\n1\\. [app\\.thirdweb\\.com](https://thirdweb.com/dashboard) → новый проект \\(НЕ старый Playground\\!\\)\n2\\. Скопируй адрес нового Deployer Wallet\n3\\. Пополни ~5–10 MATIC для газа\n4\\. Пришли адрес Deployer Wallet в чат команды",
+      "📅 *День 2–3: Деплой контрактов \\(после Safe от Григория\\)*\n5\\. Обнови адрес Safe в системе \\(SED\\-Hub \\+ \\.env\\)\n6\\. Задеплой *SXFToken* \\(ERC\\-20, 1B supply\\)\n7\\. Задеплой *RWANFT* \\(ERC\\-721, KYC\\-gated\\)\n8\\. Задеплой пул\\-контракт через ThirdWeb Dashboard\n9\\. Установи owner контрактов \\= Gnosis Safe \\(НЕ свой кошелёк\\!\\)",
+      "📅 *День 3–7: Oracle \\+ Docs*\n10\\. Проверь все 46 документов на IPFS \\(master CID\\)\n11\\. Сверь SHA\\-256 хеши с metadata JSON\n12\\. Задеплой Oracle контракт \\(6 чекпоинтов\\)\n13\\. Задеплой RWAMarketplace \\(buyback \\& burn\\)\n14\\. Подключи Oracle к пул\\-контракту",
+      "📅 *День 7–14: Первый инвестор*\n15\\. Протестируй цикл: верификация → KYC → инвест → NFT\n16\\. Проверь audit\\_log \\(append\\-only\\)\n17\\. Проверь rate limiter и CORS\n18\\. Проголосуй в DAO по dao\\-001 и dao\\-005",
+    ],
+    rules: [
+      "🚫 НЕ использовать старые кошельки \\(0x7feE\\.\\.\\., 0x83309B8c\\.\\.\\.\\)",
+      "🔐 Owner контрактов \\= Gnosis Safe, НЕ твой кошелёк",
+      "✋ Ты НЕ Safe подписант — только деплой",
+      "🔑 Все секреты через \\.env, НЕ в коде",
     ],
   },
   grygorii_damekin: {
     name: "Григорий",
     chatId: 5083559046,
     role: "Owner · Safe Signer 1 (Ledger)",
+    emoji: "🟡",
     steps: [
-      "1️⃣ Подготовь *Ledger* — обнови прошивку, установи приложение *Polygon/Ethereum*",
-      "2️⃣ Передай Данилу свой Ledger-адрес для добавления в Safe",
-      "3️⃣ Открой [app.safe.global/new-safe](https://app.safe.global/new-safe) → выбери сеть *Polygon*",
-      "4️⃣ Добавь подписантов: твой Ledger + MetaMask Данила + TBD третий",
-      "5️⃣ Установи порог *2-of-3* → задеплой Safe → подпиши через Ledger",
-      "6️⃣ Пришли адрес Safe в чат (@alpariod) → обновим во всей системе",
+      "📅 *День 1–2: Ledger \\+ Safe*\n1\\. Обнови прошивку Ledger → установи Ethereum \\+ Polygon app\n2\\. Запиши адрес своего Ledger\\-кошелька \\(Polygon\\)\n3\\. Возьми MetaMask\\-адрес у Данила\n4\\. Открой [app\\.safe\\.global/new\\-safe](https://app.safe.global/new-safe) → сеть Polygon\n5\\. Подписанты: твой Ledger \\+ MetaMask Данила \\+ 3\\-й от CCT LLP\n6\\. Порог: *2\\-of\\-3* → задеплой → подпиши через Ledger\n7\\. Пришли адрес Safe Андрею \\(@alpariod\\)",
+      "📅 *День 2–3: Подпись транзакций*\n8\\. Подпиши минт NFT RWA\\-SX\\-009 через app\\.safe\\.global\n9\\. Подпиши минт NFT RWA\\-SX\\-010\n10\\. Подпиши деплой пул\\-контракта",
+      "📅 *День 3–7: Юридические документы*\n11\\. Проверь и утверди Loan Agreement \\(от Александры\\)\n12\\. Проверь и утверди Assignment of Receivables\n13\\. Проверь и утверди Notice to Debtor\n14\\. Подпиши Repayment Schedule",
+      "📅 *День 7–14: Первый инвестор*\n15\\. Подпиши транзакцию приёма первого инвестора \\(2\\-of\\-3\\)\n16\\. Утверди KYC\\-статус первого инвестора\n17\\. Проголосуй в DAO по dao\\-001",
+    ],
+    rules: [
+      "👑 Ты Owner — утверждаешь крупные транзакции \\(>\\$10K\\)",
+      "🔐 Ты Safe Signer 1 — подписываешь казну \\(2\\-of\\-3\\)",
+      "⚠️ Критичные операции требуют 3\\-of\\-3",
+      "✋ НЕ деплоишь контракты самостоятельно",
+      "👤 3\\-й подписант — представитель CCT LLP",
     ],
   },
   sasha_damekina: {
     name: "Александра",
     chatId: 521990485,
     role: "Legal Officer",
+    emoji: "🟠",
     steps: [
-      "1️⃣ *Loan Agreement IT-290426* — заполни шаблон (Sunflower Seeds, $15,150, ФГ Геніївське)",
-      "2️⃣ *Assignment of Receivables* — заполни и подпиши для IT-290426",
-      "3️⃣ *Pledge Agreement* — заполни для IT-290426",
-      "4️⃣ *Notice to Debtor* (Боржнику ФГ Геніївське) — подготовь уведомление",
-      "5️⃣ *Repayment Schedule* — приложи к Loan Agreement",
-      "6️⃣ *KYC* участников — собери паспортные данные и proof of address для всех",
-      "7️⃣ Проголосуй в SED-Hub /dao по dao-005 и dao-006",
+      "📅 *День 1–2: Документы по IT\\-290426*\n1\\. Заполни *Loan Agreement* IT\\-290426\n   — Товар: Sunflower Seeds \\(Striped\\)\n   — Сумма: \\$15,150 · Должник: ФГ Геніївське\n2\\. Заполни *Assignment of Receivables* для IT\\-290426\n3\\. Заполни *Pledge Agreement* для IT\\-290426\n4\\. Подготовь *Notice to Debtor* → уведомление ФГ Геніївське\n5\\. Составь *Repayment Schedule* → приложи к Loan Agreement",
+      "📅 *День 3–7: Compliance \\+ KYC*\n6\\. KYC\\-пакет на каждого участника:\n   — Паспорт \\+ proof of address \\(Андрей, Григорий, Данил, Александра\\)\n7\\. Проверь 8 юридических документов:\n   — Положение о проекте, Устав \\(Cayman \\+ BVI\\)\n   — Вайтпейпер, Правила портала, NDA\n   — IP\\-защита, MiCA compliance, Финансовые услуги\n8\\. Загрузи документы в Google Drive \\+ Pinata\n9\\. Сверь SHA\\-256 хеши загруженных документов",
+      "📅 *День 7–14: Первый инвестор*\n10\\. Подготовь KYC\\-пакет для первого инвестора\n11\\. Проверь compliance\\-статус \\(7/8, MiCA pending\\)\n12\\. Проголосуй в DAO по dao\\-005 и dao\\-006",
+    ],
+    rules: [
+      "✋ Ты НЕ деплоишь контракты",
+      "✋ Ты НЕ управляешь казной",
+      "✋ Ты НЕ подписываешь финансовые транзакции",
+      "📄 Ты готовишь документы и compliance",
     ],
   },
   danii191191: {
     name: "Данил",
     chatId: 152360788,
     role: "Tech · Safe Signer 2 (MetaMask)",
+    emoji: "🟣",
     steps: [
-      "1️⃣ Убедись что *MetaMask* настроен → добавь сеть *Polygon Mainnet* (chainId 137)",
-      "2️⃣ Передай Григорию свой MetaMask-адрес (для добавления в Safe)",
-      "3️⃣ Подтверди транзакцию *создания Safe* в MetaMask когда Григорий пришлёт invite",
-      "4️⃣ После Safe: подписывай мультисиг-транзакции минта NFT в [app.safe.global](https://app.safe.global)",
-      "5️⃣ Проголосуй в SED-Hub /dao по dao-001 (infra)",
+      "📅 *День 1–2: MetaMask \\+ Safe*\n1\\. MetaMask → добавь сеть *Polygon Mainnet* \\(chainId 137, RPC: polygon\\-rpc\\.com\\)\n2\\. Передай Григорию свой MetaMask\\-адрес\n3\\. Подтверди транзакцию *создания Safe* в MetaMask\n4\\. Проверь [app\\.safe\\.global](https://app.safe.global) — убедись что ты Signer 2",
+      "📅 *День 2–3: Подпись NFT*\n5\\. Подпиши минт NFT RWA\\-SX\\-009 через Safe \\(2\\-of\\-3\\)\n6\\. Подпиши минт NFT RWA\\-SX\\-010 через Safe\n7\\. Подпиши деплой пул\\-контракта",
+      "📅 *День 3–7: Безопасность \\+ Oracle*\n8\\. Проверь audit\\-trail контрактов после деплоя\n9\\. Настрой алерты на Oracle checkpoint events\n10\\. Проверь AML\\-фильтры и KYC\\-верификацию в контракте\n11\\. Проголосуй в DAO по dao\\-001 \\(infra\\)",
+      "📅 *День 7–14: Первый инвестор*\n12\\. Подпиши транзакцию приёма первого инвестора \\(Safe 2\\-of\\-3\\)\n13\\. Проверь security log после первой транзакции",
+    ],
+    rules: [
+      "🔐 Ты Safe Signer 2 — подписываешь казну \\(MetaMask\\)",
+      "🛡 Ты отвечаешь за безопасность смарт\\-контрактов",
+      "✋ Критичные операции требуют 2\\-of\\-3 \\(ты \\+ Григорий\\)",
     ],
   },
 };
@@ -451,31 +471,44 @@ async function handlePlan(ctx: Context) {
   const chatId = ctx.chat?.id;
   const username = ctx.from?.username?.toLowerCase() ?? "";
 
-  const member = Object.values(TEAM).find(
-    (m) => m.chatId === chatId || username === Object.keys(TEAM).find(k => TEAM[k] === m)
-  ) ?? Object.entries(TEAM).find(([k]) => username === k)?.[1];
+  const member = Object.entries(TEAM).find(
+    ([k, m]) => m.chatId === chatId || username === k
+  )?.[1];
 
   if (!member) {
     await ctx.reply(
-      `📋 *Персональный план — SX Fund Hybrid Strategy*\n\n` +
-      `*Фазы:*\n` +
-      `🟢 *Фаза 1 \\(сейчас\\):* Собственный пул на Polygon \\(thirdweb \\+ Safe\\)\n` +
-      `🟡 *Фаза 2 \\(2–3 нед\\):* Минт NFT RWA\\-SX\\-009/010\n` +
+      `📋 *SX Fund — Общий план*\n\n` +
+      `🟢 *Фаза 1 \\(сейчас\\):* Safe 2\\-of\\-3 \\+ Deployer wallet\n` +
+      `🟡 *Фаза 2 \\(2–3 нед\\):* Деплой контрактов \\+ минт NFT SX\\-009/010\n` +
       `🔵 *Фаза 3 \\(1–2 мес\\):* Первые инвесторы, накопление истории\n` +
       `⚪ *Фаза 4 \\(6–12 мес\\):* Подача POP в Centrifuge\n\n` +
-      `_Ты не в списке команды\\. Команды: /status /deals /help_`,
+      `_Ты не в списке команды\\. /help для всех команд_`,
       { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
     );
     return;
   }
 
-  const stepsText = member.steps.map(s => s).join("\n\n");
+  // Send header
   await ctx.reply(
-    `📋 *Твой план — SX Fund*\n` +
-    `👤 *${safe(member.name)}* — _${safe(member.role)}_\n\n` +
-    `*Ближайшие шаги:*\n\n` +
-    stepsText + `\n\n` +
-    `🔗 [SED\\-Hub](https://sed\\-hub\\.trinityfund\\.io) · [DAO голосования](https://sed\\-hub\\.trinityfund\\.io/dao)`,
+    `${member.emoji} *${safe(member.name)} — Твой план*\n` +
+    `👤 _${safe(member.role)}_\n\n` +
+    `_Шаги по дням:_`,
+    { parse_mode: "MarkdownV2", link_preview_options: { is_disabled: true } }
+  );
+
+  // Send each phase as separate message (avoids 4096 char limit)
+  for (const step of member.steps) {
+    await ctx.reply(step, {
+      parse_mode: "MarkdownV2",
+      link_preview_options: { is_disabled: true },
+    });
+  }
+
+  // Send rules + footer
+  const rulesText = member.rules.join("\n");
+  await ctx.reply(
+    `⚠️ *Критические правила:*\n${rulesText}\n\n` +
+    `🔗 [SED\\-Hub](https://sed\\-hub\\.trinityfund\\.io) · [DAO](https://sed\\-hub\\.trinityfund\\.io/dao)`,
     {
       parse_mode: "MarkdownV2",
       link_preview_options: { is_disabled: true },
