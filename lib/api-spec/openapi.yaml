@@ -1,0 +1,703 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: SX Fund API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: assets
+    description: NFT RWA assets
+  - name: pool
+    description: Pool and tranche data
+  - name: oracle
+    description: Oracle events
+  - name: investors
+    description: Investor interest / contact
+  - name: openai
+    description: OpenAI AI chat operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /assets:
+    get:
+      operationId: listAssets
+      tags: [assets]
+      summary: List all RWA assets
+      responses:
+        "200":
+          description: List of assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Asset"
+    post:
+      operationId: createAsset
+      tags: [assets]
+      summary: Create an RWA asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+
+  /assets/{id}:
+    get:
+      operationId: getAsset
+      tags: [assets]
+      summary: Get a single asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Asset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+    patch:
+      operationId: updateAsset
+      tags: [assets]
+      summary: Update an asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetUpdate"
+      responses:
+        "200":
+          description: Updated asset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+
+  /pool/summary:
+    get:
+      operationId: getPoolSummary
+      tags: [pool]
+      summary: Pool overview — totals, TVL, tranches
+      responses:
+        "200":
+          description: Pool summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoolSummary"
+
+  /pool/tranches:
+    get:
+      operationId: listTranches
+      tags: [pool]
+      summary: List tranche details
+      responses:
+        "200":
+          description: Tranches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tranche"
+
+  /oracle/events:
+    get:
+      operationId: listOracleEvents
+      tags: [oracle]
+      summary: List oracle events for all assets
+      responses:
+        "200":
+          description: Oracle events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OracleEvent"
+    post:
+      operationId: createOracleEvent
+      tags: [oracle]
+      summary: Record a new oracle event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OracleEventInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OracleEvent"
+
+  /oracle/events/{assetId}:
+    get:
+      operationId: listOracleEventsByAsset
+      tags: [oracle]
+      summary: List oracle events for a specific asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Oracle events for asset
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OracleEvent"
+
+  /investors/inquire:
+    post:
+      operationId: submitInvestorInquiry
+      tags: [investors]
+      summary: Submit investor interest / contact form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvestorInquiryInput"
+      responses:
+        "201":
+          description: Inquiry submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestorInquiry"
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit a general contact message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Message submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+
+  /contacts:
+    get:
+      operationId: listContacts
+      tags: [contact]
+      summary: List all contact messages (admin)
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+
+  /investors/inquiries:
+    get:
+      operationId: listInvestorInquiries
+      tags: [investors]
+      summary: List all investor inquiries (admin)
+      responses:
+        "200":
+          description: List of inquiries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InvestorInquiry"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Asset:
+      type: object
+      required:
+        - id
+        - tokenId
+        - name
+        - assetType
+        - originator
+        - issuer
+        - buyer
+        - principal
+        - loanAmount
+        - ltv
+        - term
+        - yieldMin
+        - yieldMax
+        - status
+        - createdAt
+      properties:
+        id:
+          type: integer
+        tokenId:
+          type: string
+        name:
+          type: string
+        assetType:
+          type: string
+          enum: [trade_receivable, forward_contract]
+        description:
+          type: ["string", "null"]
+        originator:
+          type: string
+        issuer:
+          type: string
+        buyer:
+          type: string
+        commodity:
+          type: ["string", "null"]
+        underlyingCurrency:
+          type: string
+        loanCurrency:
+          type: string
+        principal:
+          type: number
+        ltv:
+          type: number
+        loanAmount:
+          type: number
+        term:
+          type: string
+        yieldMin:
+          type: number
+        yieldMax:
+          type: number
+        defaultPenalty:
+          type: number
+        collateral:
+          type: string
+        documentsIpfs:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [active, matured, defaulted, pending]
+        createdAt:
+          type: string
+
+    AssetInput:
+      type: object
+      required:
+        - tokenId
+        - name
+        - assetType
+        - originator
+        - issuer
+        - buyer
+        - principal
+        - loanAmount
+        - ltv
+        - term
+        - yieldMin
+        - yieldMax
+        - underlyingCurrency
+        - loanCurrency
+        - collateral
+        - defaultPenalty
+      properties:
+        tokenId:
+          type: string
+        name:
+          type: string
+        assetType:
+          type: string
+          enum: [trade_receivable, forward_contract]
+        description:
+          type: string
+        originator:
+          type: string
+        issuer:
+          type: string
+        buyer:
+          type: string
+        commodity:
+          type: string
+        underlyingCurrency:
+          type: string
+        loanCurrency:
+          type: string
+        principal:
+          type: number
+        ltv:
+          type: number
+        loanAmount:
+          type: number
+        term:
+          type: string
+        yieldMin:
+          type: number
+        yieldMax:
+          type: number
+        defaultPenalty:
+          type: number
+        collateral:
+          type: string
+        documentsIpfs:
+          type: string
+
+    AssetUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, matured, defaulted, pending]
+        documentsIpfs:
+          type: string
+        description:
+          type: string
+
+    Tranche:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - allocation
+        - yieldMin
+        - yieldMax
+        - priority
+        - description
+        - tvl
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [DROP, TIN]
+        allocation:
+          type: number
+        yieldMin:
+          type: number
+        yieldMax:
+          type: number
+        priority:
+          type: string
+          enum: [senior, junior]
+        description:
+          type: string
+        tvl:
+          type: number
+
+    PoolSummary:
+      type: object
+      required:
+        - totalTvl
+        - activeAssets
+        - totalAssets
+        - averageYield
+        - poolName
+        - network
+        - issuer
+        - walletType
+        - dropTvl
+        - tinTvl
+      properties:
+        poolName:
+          type: string
+        network:
+          type: string
+        issuer:
+          type: string
+        walletType:
+          type: string
+        totalTvl:
+          type: number
+        activeAssets:
+          type: integer
+        totalAssets:
+          type: integer
+        averageYield:
+          type: number
+        dropTvl:
+          type: number
+        tinTvl:
+          type: number
+
+    OracleEvent:
+      type: object
+      required:
+        - id
+        - assetId
+        - assetTokenId
+        - eventType
+        - status
+        - createdAt
+      properties:
+        id:
+          type: integer
+        assetId:
+          type: integer
+        assetTokenId:
+          type: string
+        eventType:
+          type: string
+          enum:
+            [
+              contract_signed,
+              prepayment_confirmed,
+              goods_shipped,
+              goods_received,
+              payment_received,
+              maturity,
+            ]
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+        txHash:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    OracleEventInput:
+      type: object
+      required:
+        - assetId
+        - eventType
+      properties:
+        assetId:
+          type: integer
+        eventType:
+          type: string
+          enum:
+            [
+              contract_signed,
+              prepayment_confirmed,
+              goods_shipped,
+              goods_received,
+              payment_received,
+              maturity,
+            ]
+        txHash:
+          type: string
+        notes:
+          type: string
+
+    InvestorInquiry:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - investorType
+        - interestedTranche
+        - createdAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        company:
+          type: ["string", "null"]
+        investorType:
+          type: string
+          enum: [institutional, crypto, family_office, individual]
+        interestedTranche:
+          type: string
+          enum: [DROP, TIN, both]
+        message:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    InvestorInquiryInput:
+      type: object
+      required:
+        - name
+        - email
+        - investorType
+        - interestedTranche
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        investorType:
+          type: string
+          enum: [institutional, crypto, family_office, individual]
+        interestedTranche:
+          type: string
+          enum: [DROP, TIN, both]
+        message:
+          type: string
+
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+    OpenaiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+    OpenaiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+        - content
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ContactInput:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        subject:
+          type: string
+        message:
+          type: string
+      required:
+        - name
+        - email
+        - subject
+        - message
+
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - subject
+        - message
+        - createdAt

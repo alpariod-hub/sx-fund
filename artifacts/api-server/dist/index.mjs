@@ -20498,27 +20498,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router10;
+    module.exports = Router11;
     module.exports.Route = Route;
-    function Router10(options) {
-      if (!(this instanceof Router10)) {
-        return new Router10(options);
+    function Router11(options) {
+      if (!(this instanceof Router11)) {
+        return new Router11(options);
       }
       const opts = options || {};
-      function router10(req, res, next) {
-        router10.handle(req, res, next);
+      function router11(req, res, next) {
+        router11.handle(req, res, next);
       }
-      Object.setPrototypeOf(router10, this);
-      router10.caseSensitive = opts.caseSensitive;
-      router10.mergeParams = opts.mergeParams;
-      router10.params = {};
-      router10.strict = opts.strict;
-      router10.stack = [];
-      return router10;
+      Object.setPrototypeOf(router11, this);
+      router11.caseSensitive = opts.caseSensitive;
+      router11.mergeParams = opts.mergeParams;
+      router11.params = {};
+      router11.strict = opts.strict;
+      router11.stack = [];
+      return router11;
     }
-    Router10.prototype = function() {
+    Router11.prototype = function() {
     };
-    Router10.prototype.param = function param(name, fn) {
+    Router11.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20538,7 +20538,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router10.prototype.handle = function handle(req, res, callback) {
+    Router11.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20665,7 +20665,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router10.prototype.use = function use(handler) {
+    Router11.prototype.use = function use(handler) {
       let offset = 0;
       let path2 = "/";
       if (typeof handler !== "function") {
@@ -20698,7 +20698,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router10.prototype.route = function route(path2) {
+    Router11.prototype.route = function route(path2) {
       const route2 = new Route(path2);
       const layer = new Layer(path2, {
         sensitive: this.caseSensitive,
@@ -20713,7 +20713,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router10.prototype[method] = function(path2) {
+      Router11.prototype[method] = function(path2) {
         const route = this.route(path2);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -20896,13 +20896,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router10 = null;
+      var router11 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20911,13 +20911,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router10 === null) {
-            router10 = new Router10({
+          if (router11 === null) {
+            router11 = new Router11({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router10;
+          return router11;
         }
       });
     };
@@ -20988,15 +20988,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router10 = this.router;
+      var router11 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router10.use(path2, fn2);
+          return router11.use(path2, fn2);
         }
         debug(".use app under %s", path2);
         fn2.mountpath = path2;
         fn2.parent = this;
-        router10.use(path2, function mounted_app(req, res, next) {
+        router11.use(path2, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23569,7 +23569,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23591,8 +23591,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router10.Route;
-    exports.Router = Router10;
+    exports.Route = Router11.Route;
+    exports.Router = Router11;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -33555,12 +33555,12 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
 // src/routes/index.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -37623,6 +37623,21 @@ var SubmitInvestorInquiryBody = objectType({
   "interestedTranche": enumType(["DROP", "TIN", "both"]),
   "message": stringType().optional()
 });
+var SubmitContactBody = objectType({
+  "name": stringType(),
+  "email": stringType().email(),
+  "subject": stringType(),
+  "message": stringType()
+});
+var ListContactsResponseItem = objectType({
+  "id": numberType(),
+  "name": stringType(),
+  "email": stringType(),
+  "subject": stringType(),
+  "message": stringType(),
+  "createdAt": coerce.date()
+});
+var ListContactsResponse = arrayType(ListContactsResponseItem);
 var ListInvestorInquiriesResponseItem = objectType({
   "id": numberType(),
   "name": stringType(),
@@ -44647,8 +44662,10 @@ __export(schema_exports, {
   assetStatusEnum: () => assetStatusEnum,
   assetTypeEnum: () => assetTypeEnum,
   assetsTable: () => assetsTable,
+  contactsTable: () => contactsTable,
   conversations: () => conversations,
   insertAssetSchema: () => insertAssetSchema,
+  insertContactSchema: () => insertContactSchema,
   insertConversationSchema: () => insertConversationSchema,
   insertInvestorInquirySchema: () => insertInvestorInquirySchema,
   insertMessageSchema: () => insertMessageSchema,
@@ -56138,6 +56155,17 @@ var investorInquiriesTable = pgTable("investor_inquiries", {
 });
 var insertInvestorInquirySchema = createInsertSchema(investorInquiriesTable).omit({ id: true, createdAt: true });
 
+// ../../lib/db/src/schema/contacts.ts
+var contactsTable = pgTable("contacts", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+});
+var insertContactSchema = createInsertSchema(contactsTable).omit({ id: true, createdAt: true });
+
 // ../../lib/db/src/schema/conversations.ts
 var conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
@@ -66666,9 +66694,41 @@ router5.get("/investors/inquiries", async (_req, res) => {
 });
 var investors_default = router5;
 
-// src/routes/openai/index.ts
+// src/routes/contact.ts
 var import_express6 = __toESM(require_express2(), 1);
 var router6 = (0, import_express6.Router)();
+router6.post("/contact", async (req, res) => {
+  const parsed = insertContactSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [contact] = await db.insert(contactsTable).values(parsed.data).returning();
+  void notifyAdmin(
+    `\u2709\uFE0F <b>\u041D\u043E\u0432\u043E\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435 \u0441 \u0441\u0430\u0439\u0442\u0430</b>
+
+\u{1F464} <b>${contact.name}</b>
+\u{1F4E7} ${contact.email}
+\u{1F4CC} <b>${contact.subject}</b>
+
+\u{1F4AC} ${contact.message}
+
+\u{1F517} <a href="https://sed-hub.trinityfund.io">\u041E\u0442\u043A\u0440\u044B\u0442\u044C SED-Hub</a>`
+  );
+  res.status(201).json({
+    ...contact,
+    createdAt: contact.createdAt.toISOString()
+  });
+});
+router6.get("/contacts", async (_req, res) => {
+  const contacts = await db.select().from(contactsTable).orderBy(contactsTable.createdAt);
+  res.json(contacts.map((c) => ({ ...c, createdAt: c.createdAt.toISOString() })));
+});
+var contact_default = router6;
+
+// src/routes/openai/index.ts
+var import_express7 = __toESM(require_express2(), 1);
+var router7 = (0, import_express7.Router)();
 var _openai;
 function getOpenAI() {
   if (!_openai) {
@@ -66712,11 +66772,11 @@ You help users of the SX Fund SED-Hub platform with:
 Always respond in the same language the user writes in (Ukrainian, Russian, or English).
 Be concise, professional, and actionable. When describing processes, use numbered steps.
 For on-chain actions, always remind about security best practices.`;
-router6.get("/openai/conversations", async (req, res) => {
+router7.get("/openai/conversations", async (req, res) => {
   const convs = await db.select().from(conversations).orderBy(asc(conversations.createdAt));
   res.json(convs);
 });
-router6.post("/openai/conversations", async (req, res) => {
+router7.post("/openai/conversations", async (req, res) => {
   const { title } = req.body;
   if (!title) {
     res.status(400).json({ error: "title is required" });
@@ -66725,7 +66785,7 @@ router6.post("/openai/conversations", async (req, res) => {
   const [conv] = await db.insert(conversations).values({ title }).returning();
   res.status(201).json(conv);
 });
-router6.get("/openai/conversations/:id", async (req, res) => {
+router7.get("/openai/conversations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) {
@@ -66735,7 +66795,7 @@ router6.get("/openai/conversations/:id", async (req, res) => {
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
   res.json({ ...conv, messages: msgs });
 });
-router6.delete("/openai/conversations/:id", async (req, res) => {
+router7.delete("/openai/conversations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) {
@@ -66745,12 +66805,12 @@ router6.delete("/openai/conversations/:id", async (req, res) => {
   await db.delete(conversations).where(eq(conversations.id, id));
   res.status(204).end();
 });
-router6.get("/openai/conversations/:id/messages", async (req, res) => {
+router7.get("/openai/conversations/:id/messages", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
   res.json(msgs);
 });
-router6.post("/openai/conversations/:id/messages", async (req, res) => {
+router7.post("/openai/conversations/:id/messages", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { content } = req.body;
   if (!content) {
@@ -66817,16 +66877,16 @@ router6.post("/openai/conversations/:id/messages", async (req, res) => {
 `);
   res.end();
 });
-var openai_default = router6;
+var openai_default = router7;
 
 // src/routes/workspace/index.ts
-var import_express7 = __toESM(require_express2(), 1);
-var router7 = (0, import_express7.Router)();
-router7.get("/workspace/entries", async (req, res) => {
+var import_express8 = __toESM(require_express2(), 1);
+var router8 = (0, import_express8.Router)();
+router8.get("/workspace/entries", async (req, res) => {
   const entries = await db.select().from(workspaceEntriesTable).orderBy(workspaceEntriesTable.id);
   res.json(entries);
 });
-router7.patch("/workspace/entries/:key", async (req, res) => {
+router8.patch("/workspace/entries/:key", async (req, res) => {
   const key = req.params.key;
   const parsed = patchWorkspaceEntrySchema.safeParse(req.body);
   if (!parsed.success) {
@@ -66847,7 +66907,7 @@ router7.patch("/workspace/entries/:key", async (req, res) => {
   }
   res.json(updated);
 });
-router7.post("/workspace/seed", async (_req, res) => {
+router8.post("/workspace/seed", async (_req, res) => {
   const DEFAULTS = [
     // ── OWNERS ──────────────────────────────────────────────────────────────
     { fieldKey: "llp_name_1", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u041F\u043E\u043B\u043D\u043E\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 LLP \u2014 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 1", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: SX Capital Partners LLP" },
@@ -66913,14 +66973,14 @@ router7.post("/workspace/seed", async (_req, res) => {
   }
   res.json({ seeded: inserted, total: DEFAULTS.length });
 });
-var workspace_default = router7;
+var workspace_default = router8;
 
 // src/routes/deploy/index.ts
-var import_express8 = __toESM(require_express2(), 1);
+var import_express9 = __toESM(require_express2(), 1);
 import { spawn } from "child_process";
 import { join } from "path";
-var router8 = (0, import_express8.Router)();
-router8.get("/deploy-package", (req, res) => {
+var router9 = (0, import_express9.Router)();
+router9.get("/deploy-package", (req, res) => {
   const adminSecret = process.env.ADMIN_SECRET;
   if (adminSecret && req.headers["x-admin-secret"] !== adminSecret) {
     res.status(403).json({ error: "Forbidden \u2014 set x-admin-secret header" });
@@ -66950,22 +67010,23 @@ router8.get("/deploy-package", (req, res) => {
   });
   req.on("close", () => tar.kill());
 });
-var deploy_default = router8;
+var deploy_default = router9;
 
 // src/routes/index.ts
-var router9 = (0, import_express9.Router)();
-router9.use(health_default);
-router9.use(assets_default);
-router9.use(pool_default);
-router9.use(oracle_default);
-router9.use(investors_default);
-router9.use(openai_default);
-router9.use(workspace_default);
-router9.use(deploy_default);
-var routes_default = router9;
+var router10 = (0, import_express10.Router)();
+router10.use(health_default);
+router10.use(assets_default);
+router10.use(pool_default);
+router10.use(oracle_default);
+router10.use(investors_default);
+router10.use(contact_default);
+router10.use(openai_default);
+router10.use(workspace_default);
+router10.use(deploy_default);
+var routes_default = router10;
 
 // src/app.ts
-var app = (0, import_express10.default)();
+var app = (0, import_express11.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -66986,8 +67047,8 @@ app.use(
   })
 );
 app.use((0, import_cors.default)());
-app.use(import_express10.default.json());
-app.use(import_express10.default.urlencoded({ extended: true }));
+app.use(import_express11.default.json());
+app.use(import_express11.default.urlencoded({ extended: true }));
 app.use("/api", routes_default);
 var WEBHOOK_URL = process.env.TELEGRAM_WEBHOOK_URL;
 var WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
