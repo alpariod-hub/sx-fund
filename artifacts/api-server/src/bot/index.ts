@@ -13,26 +13,44 @@ import { logger } from "../lib/logger";
 
 // ─── OpenAI ────────────────────────────────────────────────────────────────────
 
-const SYSTEM_PROMPT = `You are SX Fund AI Assistant — an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
+const SYSTEM_PROMPT = `You are SX Fund AI Assistant — an expert in RWA (Real World Assets) agricultural trade finance on Polygon.
 
 You help users of the SX Fund SED-Hub platform with:
 
 **Pool Management:**
 - 3 tranches: DROP (70%, 6-8% APR, senior), MEZZ (10%, 10-12% APR), TIN (20%, 15-18% APR, junior)
 - Pool TVL: $262,500 USDC | Underlying: €350,000 EUR | LTV: 75%
-- Network: Polygon | Protocol: Centrifuge | Issuer: Cereal Crops Trading LLP
+- Network: Polygon | Issuer: Cereal Crops Trading LLP (CCT LLP)
+
+**Strategy (Hybrid approach — chosen):**
+- Phase 1 (NOW): Own pool on Polygon via thirdweb + Gnosis Safe 2-of-3
+- Phase 2: Mint NFT RWA-SX-009 (Sunflower 20.2MT, $15,150) and RWA-SX-010 (Feed Corn 23MT, $3,450)
+- Phase 3: First investors, accumulate deal history
+- Phase 4 (6-12 months): Submit POP to Centrifuge DAO with real track record
+- NOT going directly to Centrifuge — own pool first for speed and control
+
+**Fastest path to first financing (2-3 weeks):**
+1. Андрей: create ThirdWeb project → new deployer wallet → fund with MATIC
+2. Григорий + Данил: create Safe 2-of-3 at app.safe.global (Polygon)
+3. Mint NFT RWA-SX-009 and RWA-SX-010 → recipient = Safe address
+4. Александра: complete Loan Agreement + Assignment for IT-290426
+5. Deploy pool contract on Polygon via thirdweb
+6. First investor onboarding
 
 **Deals & Assets:**
-- 10 FG Geniivske trade contracts (Oct 2025–May 2026) on IPFS
-- NFT-backed assets on Polygon, Centrifuge integration
+- 10 FG Geniivske trade contracts on IPFS (manifest: QmeghB6yMHHznFp6tBW7cLTeLAsHrNLo6sFkPXnMKRMsvS)
+- Priority NFTs: RWA-SX-009 (Sunflower, metadata QmRRDiY4…) and RWA-SX-010 (Feed Corn, metadata QmVZoiC…)
 - Oracle events: contract_signed → prepayment_confirmed → goods_shipped → goods_received → payment_received → maturity
 
-**Investors:**
-- KYC/AML via AMLBot, types: institutional, crypto, family_office, individual
-- DROP = conservative (6-8%), MEZZ = balanced (10-12%), TIN = aggressive (15-18%)
+**Team roles:**
+- Андрей (@alpariod): Owner, Tech lead, ThirdWeb deployer
+- Григорий (@Grygorii_Damekin): Owner, Safe signer 1 (Ledger)
+- Александра (@sasha_damekina): Legal Officer — documents
+- Данил (@danii191191): Tech, Safe signer 2 (MetaMask)
 
 **Security:**
-- Gnosis Safe 2-of-3 multisig (Андрей Ledger + Григорий MetaMask + TBD)
+- Gnosis Safe 2-of-3 (Григорий Ledger + Данил MetaMask + TBD) — CRITICAL first step
+- OLD wallets 0x7feE... and 0x83309B... are COMPROMISED — never use
 - AML flow: unique temp wallet → AMLBot check → sweep to Safe
 - ChainGPT for smart contract auditing
 
@@ -82,13 +100,15 @@ function mainMenu() {
     .text("👥 Инвесторы",      "cmd:investors")
     .text("💰 Транши",         "cmd:tranches")
     .row()
+    .text("🗳 Мой план",       "cmd:plan")
     .text("🔒 Безопасность",   "cmd:security")
-    .text("❓ Помощь",         "cmd:help")
     .row()
-    .url("🌐 SED-Hub Dashboard",  getDashboardUrl())
-    .url("📋 Team Workspace",     getWorkspaceUrl())
+    .url("🌐 SED-Hub",            "https://sed-hub.trinityfund.io")
+    .url("🗳 DAO Голосования",    "https://sed-hub.trinityfund.io/dao")
     .row()
-    .url("📓 Notion Dashboard",   NOTION_URL)
+    .url("📓 Notion",             NOTION_URL)
+    .text("❓ Помощь",            "cmd:help")
+    .row()
     .text("🗑 Очистить чат",      "cmd:clear");
 }
 
@@ -360,10 +380,151 @@ async function handleHelp(ctx: Context) {
     `/investors — статистика инвесторов\n` +
     `/tranches — описание траншей DROP/MEZZ/TIN\n` +
     `/security — AML и Safe мультиподпись\n` +
+    `/plan — 🗳 твой персональный план по шагам\n` +
+    `/remind — 📤 отправить напоминания всей команде \\(admin\\)\n` +
     `/clear — очистить историю чата с AI\n` +
     `/help — эта справка\n\n` +
     `_Или просто напиши любой вопрос — AI ответит\\._`,
     { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
+  );
+}
+
+// ─── Team chat IDs (from PM2 config) ──────────────────────────────────────────
+
+const TEAM: Record<string, { name: string; chatId: number; role: string; steps: string[] }> = {
+  alpariod: {
+    name: "Андрей",
+    chatId: 8532055371,
+    role: "Owner · Tech Lead",
+    steps: [
+      "1️⃣ *ThirdWeb* — создай новый проект на [app.thirdweb.com](https://thirdweb.com/dashboard) → получи адрес нового deployer wallet (clean wallet!)",
+      "2️⃣ Пополни deployer wallet *MATIC* (~$5–10 для gas) через Binance/MetaMask",
+      "3️⃣ Пришли адрес deployer wallet в чат → обновим в системе",
+      "4️⃣ После создания Safe → задеплой пул-контракт через thirdweb dashboard",
+      "5️⃣ Проголосуй в SED-Hub /dao по dao-001 и dao-005",
+    ],
+  },
+  grygorii_damekin: {
+    name: "Григорий",
+    chatId: 5083559046,
+    role: "Owner · Safe Signer 1 (Ledger)",
+    steps: [
+      "1️⃣ Подготовь *Ledger* — обнови прошивку, установи приложение *Polygon/Ethereum*",
+      "2️⃣ Передай Данилу свой Ledger-адрес для добавления в Safe",
+      "3️⃣ Открой [app.safe.global/new-safe](https://app.safe.global/new-safe) → выбери сеть *Polygon*",
+      "4️⃣ Добавь подписантов: твой Ledger + MetaMask Данила + TBD третий",
+      "5️⃣ Установи порог *2-of-3* → задеплой Safe → подпиши через Ledger",
+      "6️⃣ Пришли адрес Safe в чат (@alpariod) → обновим во всей системе",
+    ],
+  },
+  sasha_damekina: {
+    name: "Александра",
+    chatId: 521990485,
+    role: "Legal Officer",
+    steps: [
+      "1️⃣ *Loan Agreement IT-290426* — заполни шаблон (Sunflower Seeds, $15,150, ФГ Геніївське)",
+      "2️⃣ *Assignment of Receivables* — заполни и подпиши для IT-290426",
+      "3️⃣ *Pledge Agreement* — заполни для IT-290426",
+      "4️⃣ *Notice to Debtor* (Боржнику ФГ Геніївське) — подготовь уведомление",
+      "5️⃣ *Repayment Schedule* — приложи к Loan Agreement",
+      "6️⃣ *KYC* участников — собери паспортные данные и proof of address для всех",
+      "7️⃣ Проголосуй в SED-Hub /dao по dao-005 и dao-006",
+    ],
+  },
+  danii191191: {
+    name: "Данил",
+    chatId: 152360788,
+    role: "Tech · Safe Signer 2 (MetaMask)",
+    steps: [
+      "1️⃣ Убедись что *MetaMask* настроен → добавь сеть *Polygon Mainnet* (chainId 137)",
+      "2️⃣ Передай Григорию свой MetaMask-адрес (для добавления в Safe)",
+      "3️⃣ Подтверди транзакцию *создания Safe* в MetaMask когда Григорий пришлёт invite",
+      "4️⃣ После Safe: подписывай мультисиг-транзакции минта NFT в [app.safe.global](https://app.safe.global)",
+      "5️⃣ Проголосуй в SED-Hub /dao по dao-001 (infra)",
+    ],
+  },
+};
+
+const ADMIN_CHAT_ID = 8532055371; // alpariod
+
+async function handlePlan(ctx: Context) {
+  const chatId = ctx.chat?.id;
+  const username = ctx.from?.username?.toLowerCase() ?? "";
+
+  const member = Object.values(TEAM).find(
+    (m) => m.chatId === chatId || username === Object.keys(TEAM).find(k => TEAM[k] === m)
+  ) ?? Object.entries(TEAM).find(([k]) => username === k)?.[1];
+
+  if (!member) {
+    await ctx.reply(
+      `📋 *Персональный план — SX Fund Hybrid Strategy*\n\n` +
+      `*Фазы:*\n` +
+      `🟢 *Фаза 1 \\(сейчас\\):* Собственный пул на Polygon \\(thirdweb \\+ Safe\\)\n` +
+      `🟡 *Фаза 2 \\(2–3 нед\\):* Минт NFT RWA\\-SX\\-009/010\n` +
+      `🔵 *Фаза 3 \\(1–2 мес\\):* Первые инвесторы, накопление истории\n` +
+      `⚪ *Фаза 4 \\(6–12 мес\\):* Подача POP в Centrifuge\n\n` +
+      `_Ты не в списке команды\\. Команды: /status /deals /help_`,
+      { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
+    );
+    return;
+  }
+
+  const stepsText = member.steps.map(s => s).join("\n\n");
+  await ctx.reply(
+    `📋 *Твой план — SX Fund*\n` +
+    `👤 *${safe(member.name)}* — _${safe(member.role)}_\n\n` +
+    `*Ближайшие шаги:*\n\n` +
+    stepsText + `\n\n` +
+    `🔗 [SED\\-Hub](https://sed\\-hub\\.trinityfund\\.io) · [DAO голосования](https://sed\\-hub\\.trinityfund\\.io/dao)`,
+    {
+      parse_mode: "MarkdownV2",
+      link_preview_options: { is_disabled: true },
+      reply_markup: new InlineKeyboard()
+        .url("📊 SED-Hub", "https://sed-hub.trinityfund.io")
+        .url("🗳 DAO Votes", "https://sed-hub.trinityfund.io/dao")
+        .row()
+        .text("◀️ Меню", "cmd:menu"),
+    }
+  );
+}
+
+async function handleRemind(ctx: Context) {
+  const chatId = ctx.chat?.id;
+  if (chatId !== ADMIN_CHAT_ID) {
+    await ctx.reply("🔒 Только для администратора\\.", { parse_mode: "MarkdownV2" });
+    return;
+  }
+
+  await ctx.reply("📤 Отправляю напоминания команде\\.\\.\\.", { parse_mode: "MarkdownV2" });
+
+  let sent = 0;
+  for (const [, member] of Object.entries(TEAM)) {
+    try {
+      const stepsShort = member.steps.slice(0, 3).join("\n\n");
+      await bot.api.sendMessage(
+        member.chatId,
+        `🔔 *Напоминание — SX Fund*\n\n` +
+        `Привет, *${safe(member.name)}*\\! Ближайшие задачи:\n\n` +
+        stepsShort + `\n\n` +
+        `_Полный план: /plan_\n` +
+        `_SED\\-Hub: https://sed\\-hub\\.trinityfund\\.io_`,
+        {
+          parse_mode: "MarkdownV2",
+          link_preview_options: { is_disabled: true },
+          reply_markup: new InlineKeyboard()
+            .url("📋 Мой план", "https://sed-hub.trinityfund.io/dao")
+            .text("📖 Детали", "cmd:plan"),
+        }
+      );
+      sent++;
+    } catch (err) {
+      logger.warn({ err, member: member.name }, "remind: failed to send");
+    }
+  }
+
+  await ctx.reply(
+    `✅ Напоминания отправлены: *${sent}/${Object.keys(TEAM).length}* участников`,
+    { parse_mode: "MarkdownV2" }
   );
 }
 
@@ -489,6 +650,8 @@ bot.command("oracle",    handleOracle);
 bot.command("investors", handleInvestors);
 bot.command("tranches",  handleTranches);
 bot.command("security",  handleSecurity);
+bot.command("plan",      handlePlan);
+bot.command("remind",    handleRemind);
 bot.command("help",      handleHelp);
 bot.command("clear",     handleClear);
 bot.command("menu",      handleMenu);
@@ -504,6 +667,7 @@ const CALLBACK_MAP: Record<string, (ctx: Context) => Promise<void>> = {
   "cmd:investors": handleInvestors,
   "cmd:tranches":  handleTranches,
   "cmd:security":  handleSecurity,
+  "cmd:plan":      handlePlan,
   "cmd:help":      handleHelp,
   "cmd:clear":     handleClear,
   "cmd:menu":      handleMenu,
