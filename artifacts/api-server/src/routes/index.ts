@@ -5,6 +5,7 @@ import poolRouter from "./pool";
 import oracleRouter from "./oracle";
 import investorsRouter from "./investors";
 import contactRouter from "./contact";
+import authRouter from "./auth";
 import openaiRouter from "./openai/index";
 import workspaceRouter from "./workspace/index";
 import deployRouter from "./deploy/index";
@@ -12,6 +13,7 @@ import deployRouter from "./deploy/index";
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use(authRouter);
 router.use(assetsRouter);
 router.use(poolRouter);
 router.use(oracleRouter);

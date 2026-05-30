@@ -20498,27 +20498,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router11;
+    module.exports = Router12;
     module.exports.Route = Route;
-    function Router11(options) {
-      if (!(this instanceof Router11)) {
-        return new Router11(options);
+    function Router12(options) {
+      if (!(this instanceof Router12)) {
+        return new Router12(options);
       }
       const opts = options || {};
-      function router11(req, res, next) {
-        router11.handle(req, res, next);
+      function router12(req, res, next) {
+        router12.handle(req, res, next);
       }
-      Object.setPrototypeOf(router11, this);
-      router11.caseSensitive = opts.caseSensitive;
-      router11.mergeParams = opts.mergeParams;
-      router11.params = {};
-      router11.strict = opts.strict;
-      router11.stack = [];
-      return router11;
+      Object.setPrototypeOf(router12, this);
+      router12.caseSensitive = opts.caseSensitive;
+      router12.mergeParams = opts.mergeParams;
+      router12.params = {};
+      router12.strict = opts.strict;
+      router12.stack = [];
+      return router12;
     }
-    Router11.prototype = function() {
+    Router12.prototype = function() {
     };
-    Router11.prototype.param = function param(name, fn) {
+    Router12.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20538,7 +20538,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router11.prototype.handle = function handle(req, res, callback) {
+    Router12.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20665,7 +20665,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router11.prototype.use = function use(handler) {
+    Router12.prototype.use = function use(handler) {
       let offset = 0;
       let path2 = "/";
       if (typeof handler !== "function") {
@@ -20698,7 +20698,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router11.prototype.route = function route(path2) {
+    Router12.prototype.route = function route(path2) {
       const route2 = new Route(path2);
       const layer = new Layer(path2, {
         sensitive: this.caseSensitive,
@@ -20713,7 +20713,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router11.prototype[method] = function(path2) {
+      Router12.prototype[method] = function(path2) {
         const route = this.route(path2);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -20896,13 +20896,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router11 = require_router();
+    var Router12 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router11 = null;
+      var router12 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20911,13 +20911,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router11 === null) {
-            router11 = new Router11({
+          if (router12 === null) {
+            router12 = new Router12({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router11;
+          return router12;
         }
       });
     };
@@ -20988,15 +20988,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router11 = this.router;
+      var router12 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router11.use(path2, fn2);
+          return router12.use(path2, fn2);
         }
         debug(".use app under %s", path2);
         fn2.mountpath = path2;
         fn2.parent = this;
-        router11.use(path2, function mounted_app(req, res, next) {
+        router12.use(path2, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23569,7 +23569,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router11 = require_router();
+    var Router12 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23591,8 +23591,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router11.Route;
-    exports.Router = Router11;
+    exports.Route = Router12.Route;
+    exports.Router = Router12;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -33555,12 +33555,12 @@ var require_lib5 = __commonJS({
 });
 
 // src/app.ts
-var import_express11 = __toESM(require_express2(), 1);
+var import_express12 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 
 // src/routes/index.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -66726,9 +66726,40 @@ router6.get("/contacts", async (_req, res) => {
 });
 var contact_default = router6;
 
-// src/routes/openai/index.ts
+// src/routes/auth.ts
 var import_express7 = __toESM(require_express2(), 1);
+import { createHash } from "crypto";
 var router7 = (0, import_express7.Router)();
+function sessionToken(secret) {
+  return createHash("sha256").update(`sx-fund:${secret}`).digest("hex");
+}
+router7.post("/auth/login", (req, res) => {
+  const { password } = req.body;
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret) {
+    res.status(503).json({ error: "Auth not configured" });
+    return;
+  }
+  if (!password || password !== secret) {
+    res.status(401).json({ error: "Invalid password" });
+    return;
+  }
+  res.json({ token: sessionToken(secret) });
+});
+router7.get("/auth/verify", (req, res) => {
+  const token = req.headers["x-admin-token"];
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret || !token || token !== sessionToken(secret)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  res.json({ ok: true });
+});
+var auth_default = router7;
+
+// src/routes/openai/index.ts
+var import_express8 = __toESM(require_express2(), 1);
+var router8 = (0, import_express8.Router)();
 var _openai;
 function getOpenAI() {
   if (!_openai) {
@@ -66772,11 +66803,11 @@ You help users of the SX Fund SED-Hub platform with:
 Always respond in the same language the user writes in (Ukrainian, Russian, or English).
 Be concise, professional, and actionable. When describing processes, use numbered steps.
 For on-chain actions, always remind about security best practices.`;
-router7.get("/openai/conversations", async (req, res) => {
+router8.get("/openai/conversations", async (req, res) => {
   const convs = await db.select().from(conversations).orderBy(asc(conversations.createdAt));
   res.json(convs);
 });
-router7.post("/openai/conversations", async (req, res) => {
+router8.post("/openai/conversations", async (req, res) => {
   const { title } = req.body;
   if (!title) {
     res.status(400).json({ error: "title is required" });
@@ -66785,7 +66816,7 @@ router7.post("/openai/conversations", async (req, res) => {
   const [conv] = await db.insert(conversations).values({ title }).returning();
   res.status(201).json(conv);
 });
-router7.get("/openai/conversations/:id", async (req, res) => {
+router8.get("/openai/conversations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) {
@@ -66795,7 +66826,7 @@ router7.get("/openai/conversations/:id", async (req, res) => {
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
   res.json({ ...conv, messages: msgs });
 });
-router7.delete("/openai/conversations/:id", async (req, res) => {
+router8.delete("/openai/conversations/:id", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const [conv] = await db.select().from(conversations).where(eq(conversations.id, id));
   if (!conv) {
@@ -66805,12 +66836,12 @@ router7.delete("/openai/conversations/:id", async (req, res) => {
   await db.delete(conversations).where(eq(conversations.id, id));
   res.status(204).end();
 });
-router7.get("/openai/conversations/:id/messages", async (req, res) => {
+router8.get("/openai/conversations/:id/messages", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const msgs = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.createdAt));
   res.json(msgs);
 });
-router7.post("/openai/conversations/:id/messages", async (req, res) => {
+router8.post("/openai/conversations/:id/messages", async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { content } = req.body;
   if (!content) {
@@ -66877,16 +66908,16 @@ router7.post("/openai/conversations/:id/messages", async (req, res) => {
 `);
   res.end();
 });
-var openai_default = router7;
+var openai_default = router8;
 
 // src/routes/workspace/index.ts
-var import_express8 = __toESM(require_express2(), 1);
-var router8 = (0, import_express8.Router)();
-router8.get("/workspace/entries", async (req, res) => {
+var import_express9 = __toESM(require_express2(), 1);
+var router9 = (0, import_express9.Router)();
+router9.get("/workspace/entries", async (req, res) => {
   const entries = await db.select().from(workspaceEntriesTable).orderBy(workspaceEntriesTable.id);
   res.json(entries);
 });
-router8.patch("/workspace/entries/:key", async (req, res) => {
+router9.patch("/workspace/entries/:key", async (req, res) => {
   const key = req.params.key;
   const parsed = patchWorkspaceEntrySchema.safeParse(req.body);
   if (!parsed.success) {
@@ -66907,7 +66938,7 @@ router8.patch("/workspace/entries/:key", async (req, res) => {
   }
   res.json(updated);
 });
-router8.post("/workspace/seed", async (_req, res) => {
+router9.post("/workspace/seed", async (_req, res) => {
   const DEFAULTS = [
     // ── OWNERS ──────────────────────────────────────────────────────────────
     { fieldKey: "llp_name_1", category: "\u042E\u0440\u0438\u0434\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430", role: "owner", label: "\u041F\u043E\u043B\u043D\u043E\u0435 \u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 LLP \u2014 \u0421\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A 1", hint: "\u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: SX Capital Partners LLP" },
@@ -66973,14 +67004,14 @@ router8.post("/workspace/seed", async (_req, res) => {
   }
   res.json({ seeded: inserted, total: DEFAULTS.length });
 });
-var workspace_default = router8;
+var workspace_default = router9;
 
 // src/routes/deploy/index.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 import { spawn } from "child_process";
 import { join } from "path";
-var router9 = (0, import_express9.Router)();
-router9.get("/deploy-package", (req, res) => {
+var router10 = (0, import_express10.Router)();
+router10.get("/deploy-package", (req, res) => {
   const adminSecret = process.env.ADMIN_SECRET;
   if (adminSecret && req.headers["x-admin-secret"] !== adminSecret) {
     res.status(403).json({ error: "Forbidden \u2014 set x-admin-secret header" });
@@ -67010,23 +67041,24 @@ router9.get("/deploy-package", (req, res) => {
   });
   req.on("close", () => tar.kill());
 });
-var deploy_default = router9;
+var deploy_default = router10;
 
 // src/routes/index.ts
-var router10 = (0, import_express10.Router)();
-router10.use(health_default);
-router10.use(assets_default);
-router10.use(pool_default);
-router10.use(oracle_default);
-router10.use(investors_default);
-router10.use(contact_default);
-router10.use(openai_default);
-router10.use(workspace_default);
-router10.use(deploy_default);
-var routes_default = router10;
+var router11 = (0, import_express11.Router)();
+router11.use(health_default);
+router11.use(auth_default);
+router11.use(assets_default);
+router11.use(pool_default);
+router11.use(oracle_default);
+router11.use(investors_default);
+router11.use(contact_default);
+router11.use(openai_default);
+router11.use(workspace_default);
+router11.use(deploy_default);
+var routes_default = router11;
 
 // src/app.ts
-var app = (0, import_express11.default)();
+var app = (0, import_express12.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -67047,8 +67079,8 @@ app.use(
   })
 );
 app.use((0, import_cors.default)());
-app.use(import_express11.default.json());
-app.use(import_express11.default.urlencoded({ extended: true }));
+app.use(import_express12.default.json());
+app.use(import_express12.default.urlencoded({ extended: true }));
 app.use("/api", routes_default);
 var WEBHOOK_URL = process.env.TELEGRAM_WEBHOOK_URL;
 var WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
