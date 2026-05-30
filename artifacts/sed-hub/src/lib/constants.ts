@@ -111,9 +111,9 @@ export const INFRASTRUCTURE = {
   safeAddress: "TBD — создать на app.safe.global",
   safeThreshold: "2-of-3",
   safeSigners: [
-    { role: "Signatory 1", name: "Григорий", device: "Ledger (в сейфе)", status: "ready" },
-    { role: "Signatory 2", name: "Данил",    device: "MetaMask",          status: "ready" },
-    { role: "Signatory 3", name: "TBD",      device: "На усмотрение Григория", status: "tbd" },
+    { role: "Signatory 1", name: "Григорий",   device: "Ledger (в сейфе)",          status: "ready" },
+    { role: "Signatory 2", name: "Данил",      device: "MetaMask",                   status: "ready" },
+    { role: "Signatory 3", name: "CCT LLP rep", device: "TBD — представитель CCT LLP", status: "tbd" },
   ],
 };
 
