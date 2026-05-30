@@ -318,27 +318,37 @@ export default function Financing() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Wallet className="h-4 w-4 text-muted-foreground" />
-              On-chain Infrastructure
+              Wallet Scheme (утверждённая)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-xs">
-            {[
-              { label: "Network",      value: INFRASTRUCTURE.network,     copy: false },
-              { label: "Server Wallet", value: INFRASTRUCTURE.serverWallet, copy: true },
-              { label: "Smart Wallet", value: INFRASTRUCTURE.smartWallet, copy: true },
-              { label: "Safe Multisig", value: INFRASTRUCTURE.safeAddress, copy: false, warn: true },
-            ].map(r => (
-              <div key={r.label} className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-0">
-                <span className="text-muted-foreground">{r.label}</span>
-                <div className="flex items-center gap-1">
-                  <span className={`font-mono ${r.warn ? "text-amber-400" : ""}`}>
-                    {r.value.length > 20 ? r.value.slice(0, 10) + "…" + r.value.slice(-8) : r.value}
-                  </span>
-                  {r.copy && <CopyButton value={r.value} />}
-                  {r.warn && <AlertTriangle className="h-3 w-3 text-amber-400" />}
-                </div>
+            {/* Deployer wallet */}
+            <div className="flex items-center justify-between py-1.5 border-b border-border/50">
+              <span className="text-muted-foreground">Network</span>
+              <span className="font-mono">{INFRASTRUCTURE.network}</span>
+            </div>
+            <div className="flex items-center justify-between py-1.5 border-b border-border/50">
+              <span className="text-muted-foreground">Deployer Wallet</span>
+              <span className="text-amber-400 font-mono">{INFRASTRUCTURE.deployerWallet}</span>
+            </div>
+            <div className="flex items-center justify-between py-1.5 border-b border-border/50">
+              <div className="text-muted-foreground">Safe Multisig</div>
+              <div className="flex items-center gap-1 text-amber-400">
+                <span className="font-mono">{INFRASTRUCTURE.safeAddress}</span>
+                <AlertTriangle className="h-3 w-3" />
               </div>
-            ))}
+            </div>
+            <div className="pt-1">
+              <div className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wider">Подписанты Safe {INFRASTRUCTURE.safeThreshold}</div>
+              {INFRASTRUCTURE.safeSigners.map((s) => (
+                <div key={s.role} className="flex items-center justify-between py-1 border-b border-border/30 last:border-0">
+                  <span className="text-muted-foreground">{s.name} — {s.device}</span>
+                  <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                    s.status === "ready" ? "bg-emerald-400/15 text-emerald-400" : "bg-muted text-muted-foreground"
+                  }`}>{s.status === "ready" ? "Ready" : "TBD"}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
@@ -403,7 +413,7 @@ export default function Financing() {
                 ["Token Standard", "ERC-721"],
                 ["Name", "SX-RWA-009 Sunflower Seeds 20.2MT"],
                 ["Metadata URI", "ipfs://QmRRDiY4S3u6aoZ2tLZkcnrnFhNM3a8QBhe7Crwo7Yn2Xk"],
-                ["Recipient Wallet", INFRASTRUCTURE.smartWallet.slice(0,10) + "…"],
+                ["Recipient Wallet", "Safe 2-of-3 (создать сначала)"],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between items-start py-1 border-b border-emerald-400/10 last:border-0">
                   <span className="text-muted-foreground">{k}</span>
@@ -418,7 +428,7 @@ export default function Financing() {
                 ["Token Standard", "ERC-721"],
                 ["Name", "SX-RWA-010 Feed Corn 23MT"],
                 ["Metadata URI", "ipfs://QmVZoiCK6cNYxzsRcdUmkV1ASNyKw4hYZwnsy214cuDKZA"],
-                ["Recipient Wallet", INFRASTRUCTURE.smartWallet.slice(0,10) + "…"],
+                ["Recipient Wallet", "Safe 2-of-3 (создать сначала)"],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between items-start py-1 border-b border-emerald-400/10 last:border-0">
                   <span className="text-muted-foreground">{k}</span>
@@ -435,10 +445,10 @@ export default function Financing() {
                 <ExternalLink className="h-3.5 w-3.5" />
               </Button>
             </a>
-            <a href="https://polygonscan.com/address/0x83309B8c28B9DbC6386F0C68962D00B33A0bd80c" target="_blank" rel="noreferrer">
+            <a href="https://app.safe.global/new-safe" target="_blank" rel="noreferrer">
               <Button variant="outline" size="sm" className="gap-2">
                 <ShieldCheck className="h-4 w-4" />
-                Smart Wallet на Polygonscan
+                Создать Safe →
               </Button>
             </a>
           </div>
