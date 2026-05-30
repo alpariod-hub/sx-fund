@@ -30,27 +30,21 @@ const ROLE_TASKS: Record<Role, { icon: React.ElementType; text: string; href: st
     { icon: Coins,        text: "NFT RWA-SX-009/010 ожидают минта",     href: "/financing" },
   ],
   owner: [
-    { icon: ShieldAlert,  text: "Утвердить Safe подписантов",            href: "/security",  urgent: true },
+    { icon: ShieldAlert,  text: "Утвердить Safe подписантов (Григорий)", href: "/security",  urgent: true },
     { icon: Vote,         text: "Проголосовать по dao-001 и dao-005",    href: "/dao",       urgent: true },
     { icon: TrendingUp,   text: "Pool TVL: $262K → цель $1M к Q4",      href: "/pools" },
-    { icon: Layers,       text: "2 сделки в работе",                     href: "/deals" },
+    { icon: Layers,       text: "2 сделки в работе (SX-009 / SX-010)",   href: "/deals" },
   ],
   legal: [
-    { icon: FileText,     text: "Заполнить Loan Agreement IT-290426",    href: "/legal",     urgent: true },
+    { icon: FileText,     text: "Loan Agreement IT-290426 ($15,150)",    href: "/legal",     urgent: true },
     { icon: FileText,     text: "Assignment + Pledge IT-290426",         href: "/legal",     urgent: true },
     { icon: FileText,     text: "KYC участников — не завершён",          href: "/legal",     urgent: true },
-    { icon: Vote,         text: "Проголосовать по dao-005 (Legal)",      href: "/dao" },
-  ],
-  finance: [
-    { icon: Coins,        text: "NAV: $262,500 · LTV 70%",              href: "/pools" },
-    { icon: DollarSign,   text: "Waterfall: DROP / MEZZ / TIN",          href: "/accounting" },
-    { icon: Vote,         text: "dao-002/003: Минт NFT ожидает Safe",    href: "/dao" },
-    { icon: TrendingUp,   text: "Blended Yield 14–24%",                  href: "/pools" },
+    { icon: Vote,         text: "Проголосовать по dao-005 / dao-006",    href: "/dao" },
   ],
   tech: [
-    { icon: ShieldAlert,  text: "Safe 2-of-3 — не создан",              href: "/security",  urgent: true },
-    { icon: Coins,        text: "ThirdWeb: создать новый проект деплоя", href: "/financing", urgent: true },
-    { icon: Activity,     text: "Oracle: 1 checkpoint pending",          href: "/oracle" },
+    { icon: ShieldAlert,  text: "Safe 2-of-3 — не создан (Данил)",      href: "/security",  urgent: true },
+    { icon: Coins,        text: "ThirdWeb: создать новый deployer wallet", href: "/financing", urgent: true },
+    { icon: Activity,     text: "Oracle: 1 checkpoint pending (SX-008)", href: "/oracle" },
     { icon: Vote,         text: "Проголосовать по dao-001 (infra)",      href: "/dao" },
   ],
 };
@@ -66,7 +60,7 @@ export default function Hub() {
   const tasks = ROLE_TASKS[role];
   const openProposals = DAO_PROPOSALS.filter(p => p.status === "open").slice(0, 3);
 
-  const showFinance = role === "all" || role === "owner" || role === "finance";
+  const showFinance = role === "all" || role === "owner";
   const showOracle  = role === "all" || role === "tech";
 
   return (
