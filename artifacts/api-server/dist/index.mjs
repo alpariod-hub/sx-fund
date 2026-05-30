@@ -511,7 +511,7 @@ var require_node = __commonJS({
     var tty = __require("tty");
     var util2 = __require("util");
     exports.init = init;
-    exports.log = log;
+    exports.log = log2;
     exports.formatArgs = formatArgs;
     exports.save = save;
     exports.load = load;
@@ -646,7 +646,7 @@ var require_node = __commonJS({
       }
       return (/* @__PURE__ */ new Date()).toISOString() + " ";
     }
-    function log(...args) {
+    function log2(...args) {
       return process.stderr.write(util2.formatWithOptions(exports.inspectOpts, ...args) + "\n");
     }
     function save(namespaces) {
@@ -748,7 +748,7 @@ var require_depd = __commonJS({
       var site = callSiteLocation(stack[1]);
       var file2 = site[0];
       function deprecate(message) {
-        log.call(deprecate, message);
+        log2.call(deprecate, message);
       }
       deprecate._file = file2;
       deprecate._ignored = isignored(namespace);
@@ -777,7 +777,7 @@ var require_depd = __commonJS({
       var str2 = process.env.TRACE_DEPRECATION || "";
       return containsNamespace(str2, namespace);
     }
-    function log(message, site) {
+    function log2(message, site) {
       var haslisteners = eehaslisteners(process, "deprecation");
       if (!haslisteners && this._ignored) {
         return;
@@ -917,7 +917,7 @@ var require_depd = __commonJS({
         "message",
         "site",
         '"use strict"\nreturn function (' + args + ") {log.call(deprecate, message, site)\nreturn fn.apply(this, arguments)\n}"
-      )(fn, log, this, message, site);
+      )(fn, log2, this, message, site);
       return deprecatedfn;
     }
     function wrapproperty(obj, prop, message) {
@@ -942,13 +942,13 @@ var require_depd = __commonJS({
       var set2 = descriptor.set;
       if (typeof get === "function") {
         descriptor.get = function getter() {
-          log.call(deprecate, message, site);
+          log2.call(deprecate, message, site);
           return get.apply(this, arguments);
         };
       }
       if (typeof set2 === "function") {
         descriptor.set = function setter() {
-          log.call(deprecate, message, site);
+          log2.call(deprecate, message, site);
           return set2.apply(this, arguments);
         };
       }
@@ -26733,11 +26733,11 @@ var require_tools = __commonJS({
         }
       }
     }
-    function buildFormatters(level, bindings, log) {
+    function buildFormatters(level, bindings, log2) {
       return {
         level,
         bindings,
-        log
+        log: log2
       };
     }
     function normalizeDestFileDescriptor(destination) {
@@ -27120,11 +27120,11 @@ var require_proto = __commonJS({
         }
       } else instance[serializersSym] = serializers;
       if (options.hasOwnProperty("formatters")) {
-        const { level, bindings: chindings, log } = options.formatters;
+        const { level, bindings: chindings, log: log2 } = options.formatters;
         instance[formattersSym] = buildFormatters(
           level || formatters2.level,
           chindings || resetChildingsFormatter,
-          log || formatters2.log
+          log2 || formatters2.log
         );
       } else {
         instance[formattersSym] = buildFormatters(
@@ -28303,7 +28303,7 @@ var require_logger = __commonJS({
       result.logger = logger2;
       return result;
       function onResFinished(res, logger3, err) {
-        let log = logger3;
+        let log2 = logger3;
         const responseTime = Date.now() - res[startTime];
         const req = res[reqObject];
         const level = getLogLevelFromCustomLogLevel(customLogLevel, useLevel, res, err, req);
@@ -28315,12 +28315,12 @@ var require_logger = __commonJS({
           const customPropBindingStr = logger3[stringifySym](customPropBindings).replace(/[{}]/g, "");
           const customPropBindingsStr = logger3[chindingsSym];
           if (!customPropBindingsStr.includes(customPropBindingStr)) {
-            log = logger3.child(customPropBindings);
+            log2 = logger3.child(customPropBindings);
           }
         }
         if (err || res.err || res.statusCode >= 500) {
           const error40 = err || res.err || new Error("failed with status code " + res.statusCode);
-          log[level](
+          log2[level](
             onRequestErrorObject(req, res, error40, {
               [resKey]: res,
               [errKey]: error40,
@@ -28330,7 +28330,7 @@ var require_logger = __commonJS({
           );
           return;
         }
-        log[level](
+        log2[level](
           onRequestSuccessObject(req, res, {
             [resKey]: res,
             [responseTimeKey]: responseTime
@@ -28341,14 +28341,14 @@ var require_logger = __commonJS({
       function loggingMiddleware(logger3, req, res, next) {
         let shouldLogSuccess = true;
         req.id = req.id || genReqId(req, res);
-        const log = quietReqLogger ? logger3.child({ [requestIdKey]: req.id }) : logger3;
-        let fullReqLogger = log.child({ [reqKey]: req });
+        const log2 = quietReqLogger ? logger3.child({ [requestIdKey]: req.id }) : logger3;
+        let fullReqLogger = log2.child({ [reqKey]: req });
         const customPropBindings = typeof customProps === "function" ? customProps(req, res) : customProps;
         if (customPropBindings) {
           fullReqLogger = fullReqLogger.child(customPropBindings);
         }
-        const responseLogger = quietResLogger ? log : fullReqLogger;
-        const requestLogger = quietReqLogger ? log : fullReqLogger;
+        const responseLogger = quietResLogger ? log2 : fullReqLogger;
+        const requestLogger = quietReqLogger ? log2 : fullReqLogger;
         if (!res.log) {
           res.log = responseLogger;
         }
@@ -44659,6 +44659,8 @@ function drizzle(...params) {
 // ../../lib/db/src/schema/index.ts
 var schema_exports = {};
 __export(schema_exports, {
+  adminAccessLogTable: () => adminAccessLogTable,
+  adminOtpTable: () => adminOtpTable,
   assetStatusEnum: () => assetStatusEnum,
   assetTypeEnum: () => assetTypeEnum,
   assetsTable: () => assetsTable,
@@ -56166,6 +56168,24 @@ var contactsTable = pgTable("contacts", {
 });
 var insertContactSchema = createInsertSchema(contactsTable).omit({ id: true, createdAt: true });
 
+// ../../lib/db/src/schema/admin_auth.ts
+var adminOtpTable = pgTable("admin_otp", {
+  id: serial("id").primaryKey(),
+  telegramUsername: text("telegram_username").notNull(),
+  code: text("code").notNull(),
+  used: boolean("used").notNull().default(false),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+});
+var adminAccessLogTable = pgTable("admin_access_log", {
+  id: serial("id").primaryKey(),
+  telegramUsername: text("telegram_username").notNull(),
+  action: text("action").notNull(),
+  ip: text("ip"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+});
+
 // ../../lib/db/src/schema/conversations.ts
 var conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
@@ -66728,32 +66748,167 @@ var contact_default = router6;
 
 // src/routes/auth.ts
 var import_express7 = __toESM(require_express2(), 1);
-import { createHash } from "crypto";
+import { createHash, randomInt } from "crypto";
+import { Bot as Bot2 } from "grammy";
 var router7 = (0, import_express7.Router)();
-function sessionToken(secret) {
-  return createHash("sha256").update(`sx-fund:${secret}`).digest("hex");
+function approvedAdmins() {
+  const raw = process.env.APPROVED_ADMINS ?? "";
+  return raw.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 }
-router7.post("/auth/login", (req, res) => {
-  const { password } = req.body;
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) {
-    res.status(503).json({ error: "Auth not configured" });
+function isApproved(username) {
+  return approvedAdmins().includes(username.toLowerCase().replace(/^@/, ""));
+}
+function sessionToken(username, secret) {
+  return createHash("sha256").update(`sx-fund:${username}:${secret}`).digest("hex");
+}
+async function log(telegramUsername, action, req) {
+  await db.insert(adminAccessLogTable).values({
+    telegramUsername,
+    action,
+    ip: req.ip ?? null,
+    userAgent: req.headers["user-agent"] ?? null
+  });
+}
+router7.post("/auth/request-otp", async (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    res.status(400).json({ error: "username required" });
     return;
   }
-  if (!password || password !== secret) {
-    res.status(401).json({ error: "Invalid password" });
+  const clean = username.trim().replace(/^@/, "");
+  if (!isApproved(clean)) {
+    res.status(403).json({ error: "Access denied" });
     return;
   }
-  res.json({ token: sessionToken(secret) });
+  const code = String(randomInt(1e5, 999999));
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1e3);
+  await db.update(adminOtpTable).set({ used: true }).where(
+    and(
+      eq(adminOtpTable.telegramUsername, clean),
+      eq(adminOtpTable.used, false)
+    )
+  );
+  await db.insert(adminOtpTable).values({
+    telegramUsername: clean,
+    code,
+    expiresAt
+  });
+  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  let sent = false;
+  const userChatIdEnv = `TELEGRAM_CHAT_${clean.toUpperCase()}`;
+  const userChatId = process.env[userChatIdEnv];
+  if (botToken && userChatId) {
+    try {
+      const bot2 = new Bot2(botToken);
+      await bot2.api.sendMessage(
+        Number(userChatId),
+        `\u{1F510} <b>SX Fund \u2014 \u041A\u043E\u0434 \u0432\u0445\u043E\u0434\u0430</b>
+
+\u041A\u043E\u0434: <code>${code}</code>
+
+\u23F1 \u0414\u0435\u0439\u0441\u0442\u0432\u0443\u0435\u0442 5 \u043C\u0438\u043D\u0443\u0442
+\u274C \u0415\u0441\u043B\u0438 \u0432\u044B \u043D\u0435 \u0437\u0430\u043F\u0440\u0430\u0448\u0438\u0432\u0430\u043B\u0438 \u043A\u043E\u0434 \u2014 \u0438\u0433\u043D\u043E\u0440\u0438\u0440\u0443\u0439\u0442\u0435 \u044D\u0442\u043E \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435`,
+        { parse_mode: "HTML" }
+      );
+      sent = true;
+    } catch {
+    }
+  }
+  if (!sent && adminChatId && botToken) {
+    try {
+      const bot2 = new Bot2(botToken);
+      await bot2.api.sendMessage(
+        Number(adminChatId),
+        `\u{1F510} <b>OTP \u0434\u043B\u044F @${clean}</b>
+
+\u041A\u043E\u0434: <code>${code}</code>
+
+\u23F1 \u0414\u0435\u0439\u0441\u0442\u0432\u0443\u0435\u0442 5 \u043C\u0438\u043D\u0443\u0442`,
+        { parse_mode: "HTML" }
+      );
+      sent = true;
+    } catch {
+    }
+  }
+  await log(clean, "otp_requested", req);
+  res.json({
+    ok: true,
+    hint: sent ? "Code sent to Telegram" : "Code generated (Telegram not configured)",
+    // In dev mode expose the code; in production NEVER expose it
+    ...process.env.NODE_ENV !== "production" ? { _devCode: code } : {}
+  });
+});
+router7.post("/auth/verify-otp", async (req, res) => {
+  const { username, code } = req.body;
+  if (!username || !code) {
+    res.status(400).json({ error: "username and code required" });
+    return;
+  }
+  const clean = username.trim().replace(/^@/, "");
+  const [otp] = await db.select().from(adminOtpTable).where(
+    and(
+      eq(adminOtpTable.telegramUsername, clean),
+      eq(adminOtpTable.code, code.trim()),
+      eq(adminOtpTable.used, false),
+      gt(adminOtpTable.expiresAt, /* @__PURE__ */ new Date())
+    )
+  ).limit(1);
+  if (!otp) {
+    await log(clean, "otp_failed", req);
+    res.status(401).json({ error: "Invalid or expired code" });
+    return;
+  }
+  await db.update(adminOtpTable).set({ used: true }).where(eq(adminOtpTable.id, otp.id));
+  const secret = process.env.ADMIN_SECRET ?? "fallback";
+  const token = sessionToken(clean, secret);
+  await log(clean, "login_success", req);
+  void notifyAdmin(
+    `\u{1F511} <b>\u0412\u0445\u043E\u0434 \u0432 \u0441\u0438\u0441\u0442\u0435\u043C\u0443</b>
+
+\u{1F464} @${clean}
+\u{1F4CD} IP: ${req.ip ?? "unknown"}
+\u{1F550} ${(/* @__PURE__ */ new Date()).toUTCString()}`
+  );
+  res.json({ token, username: clean });
 });
 router7.get("/auth/verify", (req, res) => {
   const token = req.headers["x-admin-token"];
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret || !token || token !== sessionToken(secret)) {
+  const username = req.headers["x-admin-user"];
+  const secret = process.env.ADMIN_SECRET ?? "fallback";
+  if (!token || !username) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  res.json({ ok: true });
+  const expected = sessionToken(username, secret);
+  if (token !== expected) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  res.json({ ok: true, username });
+});
+router7.get("/auth/log", async (req, res) => {
+  const token = req.headers["x-admin-token"];
+  const username = req.headers["x-admin-user"];
+  const secret = process.env.ADMIN_SECRET ?? "fallback";
+  if (!token || !username || token !== sessionToken(username, secret)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const logs = await db.select().from(adminAccessLogTable).orderBy(adminAccessLogTable.createdAt);
+  res.json(
+    logs.map((l) => ({ ...l, createdAt: l.createdAt.toISOString() }))
+  );
+});
+router7.get("/auth/admins", (req, res) => {
+  const token = req.headers["x-admin-token"];
+  const username = req.headers["x-admin-user"];
+  const secret = process.env.ADMIN_SECRET ?? "fallback";
+  if (!token || !username || token !== sessionToken(username, secret)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  res.json({ admins: approvedAdmins() });
 });
 var auth_default = router7;
 
