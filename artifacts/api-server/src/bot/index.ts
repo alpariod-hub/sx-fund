@@ -395,72 +395,68 @@ const TEAM: Record<string, { name: string; chatId: number; role: string; emoji: 
   alpariod: {
     name: "Андрей",
     chatId: 8532055371,
-    role: "Admin · Deployer",
-    emoji: "🔵",
+    role: "Deployer",
+    emoji: "🔧",
     steps: [
-      "📅 *День 1–2: Кошельки*\n1\\. [app\\.thirdweb\\.com](https://thirdweb.com/dashboard) → новый проект \\(НЕ старый Playground\\!\\)\n2\\. Скопируй адрес нового Deployer Wallet\n3\\. Пополни \\~5–10 MATIC для газа\n4\\. Пришли адрес Deployer Wallet в чат команды",
-      "📅 *День 2–3: Деплой контрактов \\(после Safe от Григория\\)*\n5\\. Обнови адрес Safe в системе \\(SED\\-Hub \\+ \\.env\\)\n6\\. Задеплой *SXFToken* \\(ERC\\-20, 1B supply\\)\n7\\. Задеплой *RWANFT* \\(ERC\\-721, KYC\\-gated\\)\n8\\. Задеплой пул\\-контракт через ThirdWeb Dashboard\n9\\. Установи owner контрактов \\= Gnosis Safe \\(НЕ свой кошелёк\\!\\)",
-      "📅 *День 3–7: Oracle \\+ Docs*\n10\\. Проверь все 46 документов на IPFS \\(master CID\\)\n11\\. Сверь SHA\\-256 хеши с metadata JSON\n12\\. Задеплой Oracle контракт \\(6 чекпоинтов\\)\n13\\. Задеплой RWAMarketplace \\(buyback \\& burn\\)\n14\\. Подключи Oracle к пул\\-контракту",
-      "📅 *День 7–14: Первый инвестор*\n15\\. Протестируй цикл: верификация → KYC → инвест → NFT\n16\\. Проверь audit\\_log \\(append\\-only\\)\n17\\. Проверь rate limiter и CORS\n18\\. Проголосуй в DAO по dao\\-001 и dao\\-005",
+      "⚙️ *ЭТАП 1 — Deploy NFT Collection*\n1\\. Зайди на [thirdweb\\.com](https://thirdweb.com/dashboard) → новый проект\n2\\. Создай *Server Wallet* \\(Polygon mainnet\\)\n3\\. Задеплой *NFT Collection \\(ERC\\-721\\)*\n4\\. Залей 2–5 POL на Server Wallet для газа\n5\\. Пришли адрес контракта в чат \\(для PolygonScan\\)",
+      "📄 *ЭТАП 2 — Metadata \\(после CID от Александры\\)*\n6\\. Получи CID подписанных PDF от Александры\n7\\. Собери *metadata\\.json* для каждого NFT:\n   — name, description, image\n   — документы \\(CID Pinata\\), SHA\\-256\n8\\. Загрузи оба metadata\\.json на Pinata\n9\\. Получи 2 CID \\(по одному на каждый NFT\\)",
+      "🪙 *ЭТАП 3 — Mint*\n10\\. Mint *RWA\\-SX\\-001* \\(Геніївське\\) → tokenURI \\= IPFS CID\n11\\. Mint *RWA\\-SX\\-002* \\(Русин\\) → tokenURI \\= IPFS CID\n12\\. Проверь оба NFT на [polygonscan\\.com](https://polygonscan.com)\n13\\. Убедись: tokenURI → корректный metadata JSON",
     ],
     rules: [
       "🚫 НЕ использовать старые кошельки \\(0x7feE\\.\\.\\., 0x83309B8c\\.\\.\\.\\)",
-      "🔐 Owner контрактов \\= Gnosis Safe, НЕ твой кошелёк",
-      "✋ Ты НЕ Safe подписант — только деплой",
-      "🔑 Все секреты через \\.env, НЕ в коде",
+      "🔑 Server Wallet деплоит и минтит — ты управляешь им через ThirdWeb",
+      "📦 Минт только после получения CID от Александры",
+      "✅ Каждый этап подтверждай ссылкой на PolygonScan",
     ],
   },
   grygorii_damekin: {
     name: "Григорий",
     chatId: 5083559046,
-    role: "Owner · Safe Signer 1 (Ledger)",
-    emoji: "🟡",
+    role: "Owner · Safe Signer 2 (Ledger)",
+    emoji: "👑",
     steps: [
-      "📅 *День 1–2: Ledger \\+ Safe*\n1\\. Обнови прошивку Ledger → установи Ethereum \\+ Polygon app\n2\\. Запиши адрес своего Ledger\\-кошелька \\(Polygon\\)\n3\\. Возьми MetaMask\\-адрес у Данила\n4\\. Открой [app\\.safe\\.global/new\\-safe](https://app.safe.global/new-safe) → сеть Polygon\n5\\. Подписанты: твой Ledger \\+ MetaMask Данила \\+ 3\\-й от CCT LLP\n6\\. Порог: *2\\-of\\-3* → задеплой → подпиши через Ledger\n7\\. Пришли адрес Safe Андрею \\(@alpariod\\)",
-      "📅 *День 2–3: Подпись транзакций*\n8\\. Подпиши минт NFT RWA\\-SX\\-009 через app\\.safe\\.global\n9\\. Подпиши минт NFT RWA\\-SX\\-010\n10\\. Подпиши деплой пул\\-контракта",
-      "📅 *День 3–7: Юридические документы*\n11\\. Проверь и утверди Loan Agreement \\(от Александры\\)\n12\\. Проверь и утверди Assignment of Receivables\n13\\. Проверь и утверди Notice to Debtor\n14\\. Подпиши Repayment Schedule",
-      "📅 *День 7–14: Первый инвестор*\n15\\. Подпиши транзакцию приёма первого инвестора \\(2\\-of\\-3\\)\n16\\. Утверди KYC\\-статус первого инвестора\n17\\. Проголосуй в DAO по dao\\-001",
+      "🔐 *ЭТАП 4 — Подтвердить Safe \\(после Данила\\)*\n1\\. Обнови прошивку Ledger → установи Ethereum \\+ Polygon app\n2\\. Получи invite в Safe от Данила \\(@danii191191\\)\n3\\. Открой [app\\.safe\\.global](https://app.safe.global) → подпиши как Signer 2\n4\\. Пришли адрес Safe в чат \\(@alpariod\\)",
+      "📋 *ЭТАП 5 — Условия займа \\+ Документы*\n5\\. Утверди условия займа: LTV, yield, срок, валюта\n6\\. Подпиши *Loan Agreement* \\(от Александры\\)\n7\\. Подпиши *Assignment\\/Pledge* \\(NFT как залог\\)\n8\\. Подтверди lender — кто переводит USDT\n9\\. Выбери 3\\-го signatory для Safe \\(на твоё усмотрение\\)",
+      "💰 *ЭТАП 5 — Перевод займа*\n10\\. Lender переводит USDT на Safe \\(или кошелёк\\)\n11\\. NFT\\-transfer в залог lender'у \\(2\\-of\\-3 Safe\\)\n12\\. Зафиксируй курс UAH/USD на дату сделки\n13\\. Подтверди получение USDT в чат команды",
     ],
     rules: [
-      "👑 Ты Owner — утверждаешь крупные транзакции \\(\\>$10K\\)",
-      "🔐 Ты Safe Signer 1 — подписываешь казну \\(2\\-of\\-3\\)",
-      "⚠️ Критичные операции требуют 3\\-of\\-3",
-      "✋ НЕ деплоишь контракты самостоятельно",
-      "👤 3\\-й подписант — представитель CCT LLP",
+      "👑 Ты Owner — финальное слово по условиям займа",
+      "🔐 Ты Safe Signer 2 \\(Ledger\\) — подписываешь казну",
+      "✋ 3\\-го signatory выбираешь ты",
+      "📝 Подписываешь только после проверки Александры",
     ],
   },
   sasha_damekina: {
     name: "Александра",
     chatId: 521990485,
-    role: "Legal Officer",
-    emoji: "🟠",
+    role: "Legal · Docs",
+    emoji: "📋",
     steps: [
-      "📅 *День 1–2: Документы по IT\\-290426*\n1\\. Заполни *Loan Agreement* IT\\-290426\n   — Товар: Sunflower Seeds \\(Striped\\)\n   — Сумма: \\$15,150 · Должник: ФГ Геніївське\n2\\. Заполни *Assignment of Receivables* для IT\\-290426\n3\\. Заполни *Pledge Agreement* для IT\\-290426\n4\\. Подготовь *Notice to Debtor* → уведомление ФГ Геніївське\n5\\. Составь *Repayment Schedule* → приложи к Loan Agreement",
-      "📅 *День 3–7: Compliance \\+ KYC*\n6\\. KYC\\-пакет на каждого участника:\n   — Паспорт \\+ proof of address \\(Андрей, Григорий, Данил, Александра\\)\n7\\. Проверь 8 юридических документов:\n   — Положение о проекте, Устав \\(Cayman \\+ BVI\\)\n   — Вайтпейпер, Правила портала, NDA\n   — IP\\-защита, MiCA compliance, Финансовые услуги\n8\\. Загрузи документы в Google Drive \\+ Pinata\n9\\. Сверь SHA\\-256 хеши загруженных документов",
-      "📅 *День 7–14: Первый инвестор*\n10\\. Подготовь KYC\\-пакет для первого инвестора\n11\\. Проверь compliance\\-статус \\(7/8, MiCA pending\\)\n12\\. Проголосуй в DAO по dao\\-005 и dao\\-006",
+      "📝 *ЭТАП 2 — Loan Agreement*\n1\\. Заполни *Loan Agreement* \\(шаблон есть\\):\n   — Стороны: CCT LLP ↔ ФГ Геніївське\n   — Сумма: \\$15,150 · Срок · Курс UAH/USD\n2\\. Заполни *Assignment of Receivables*\n3\\. Заполни *Pledge Agreement* \\(NFT как залог\\)\n4\\. Подписи обеих сторон: Григорий \\+ Данил от CCT LLP",
+      "📤 *ЭТАП 2 — Загрузка на IPFS*\n5\\. Загрузи подписанные PDF на Pinata\n6\\. Получи CID для каждого документа\n7\\. Передай CID Андрею \\(@alpariod\\) — нужно для metadata JSON\n8\\. Сверь SHA\\-256 хеши загруженных файлов",
+      "⏳ *ЭТАП 6 — Погашение \\(позже\\)*\n9\\. Заёмщик погашает займ \\+ проценты в USDT\n10\\. Сформируй *Investor Proof* \\(закрывающий документ\\)\n11\\. NFT возвращается заёмщику после погашения",
     ],
     rules: [
-      "✋ Ты НЕ деплоишь контракты",
-      "✋ Ты НЕ управляешь казной",
-      "✋ Ты НЕ подписываешь финансовые транзакции",
-      "📄 Ты готовишь документы и compliance",
+      "📄 Твой output — подписанные PDF \\+ CID на Pinata",
+      "⏱ Андрей не может минтить без твоих CID",
+      "✋ Ты НЕ деплоишь контракты и НЕ управляешь Safe",
+      "🔗 Передай CID сразу как загрузила — не жди",
     ],
   },
   danii191191: {
     name: "Данил",
     chatId: 152360788,
-    role: "Tech · Safe Signer 2 (MetaMask)",
-    emoji: "🟣",
+    role: "Security · Safe Creator (Signer 1)",
+    emoji: "🔐",
     steps: [
-      "📅 *День 1–2: MetaMask \\+ Safe*\n1\\. MetaMask → добавь сеть *Polygon Mainnet* \\(chainId 137, RPC: polygon\\-rpc\\.com\\)\n2\\. Передай Григорию свой MetaMask\\-адрес\n3\\. Подтверди транзакцию *создания Safe* в MetaMask\n4\\. Проверь [app\\.safe\\.global](https://app.safe.global) — убедись что ты Signer 2",
-      "📅 *День 2–3: Подпись NFT*\n5\\. Подпиши минт NFT RWA\\-SX\\-009 через Safe \\(2\\-of\\-3\\)\n6\\. Подпиши минт NFT RWA\\-SX\\-010 через Safe\n7\\. Подпиши деплой пул\\-контракта",
-      "📅 *День 3–7: Безопасность \\+ Oracle*\n8\\. Проверь audit\\-trail контрактов после деплоя\n9\\. Настрой алерты на Oracle checkpoint events\n10\\. Проверь AML\\-фильтры и KYC\\-верификацию в контракте\n11\\. Проголосуй в DAO по dao\\-001 \\(infra\\)",
-      "📅 *День 7–14: Первый инвестор*\n12\\. Подпиши транзакцию приёма первого инвестора \\(Safe 2\\-of\\-3\\)\n13\\. Проверь security log после первой транзакции",
+      "🔐 *ЭТАП 4 — Создать Safe 2\\-of\\-3*\n1\\. MetaMask → сеть *Polygon Mainnet* \\(chainId 137\\)\n2\\. Открой [app\\.safe\\.global/new\\-safe](https://app.safe.global/new-safe)\n3\\. Выбери сеть: *Polygon*\n4\\. Добавь подписантов:\n   — *Signer 1:* твой кошелёк MetaMask \\(ты\\)\n   — *Signer 2:* кошелёк Григория \\(Ledger\\)\n   — *Signer 3:* на усмотрение Григория\n5\\. Порог: *2\\-of\\-3* → задеплой Safe\n6\\. Пришли invite Григорию \\(@Grygorii\\_Damekin\\)\n7\\. Верифицируй адрес Server Wallet Андрея в Safe",
+      "🛡 *После создания Safe*\n8\\. Дождись подписи Григория \\(Signer 2\\)\n9\\. Убедись что Safe активен на polygonscan\n10\\. Пришли адрес Safe в чат \\(@alpariod\\)",
     ],
     rules: [
-      "🔐 Ты Safe Signer 2 — подписываешь казну \\(MetaMask\\)",
-      "🛡 Ты отвечаешь за безопасность смарт\\-контрактов",
-      "✋ Критичные операции требуют 2\\-of\\-3 \\(ты \\+ Григорий\\)",
+      "🔐 Ты Safe Signer 1 — ты создаёшь Safe",
+      "📨 Сначала пришли invite Григорию, потом жди",
+      "✅ Safe готов только когда все 3 signatory подтвердили",
+      "🛡 Ты отвечаешь за безопасность кошельков и контрактов",
     ],
   },
 };
@@ -477,11 +473,13 @@ async function handlePlan(ctx: Context) {
 
   if (!member) {
     await ctx.reply(
-      `📋 *SX Fund — Общий план*\n\n` +
-      `🟢 *Фаза 1 \\(сейчас\\):* Safe 2\\-of\\-3 \\+ Deployer wallet\n` +
-      `🟡 *Фаза 2 \\(2–3 нед\\):* Деплой контрактов \\+ минт NFT SX\\-009/010\n` +
-      `🔵 *Фаза 3 \\(1–2 мес\\):* Первые инвесторы, накопление истории\n` +
-      `⚪ *Фаза 4 \\(6–12 мес\\):* Подача POP в Centrifuge\n\n` +
+      `📋 *SX Fund — MVP Дорожная карта*\n\n` +
+      `⚙️ *Этап 1:* Андрей деплоит ERC\\-721 на ThirdWeb\n` +
+      `📄 *Этап 2:* Александра готовит \\+ загружает PDF на IPFS\n` +
+      `🪙 *Этап 3:* Андрей минтит RWA\\-SX\\-001 и RWA\\-SX\\-002\n` +
+      `🔐 *Этап 4:* Данил создаёт Safe 2\\-of\\-3, Григорий подтверждает\n` +
+      `💰 *Этап 5:* Lender переводит USDT, NFT в залог\n` +
+      `✅ *Этап 6:* Погашение — NFT возвращается, сделка закрыта\n\n` +
       `_Ты не в списке команды\\. /help для всех команд_`,
       { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
     );
