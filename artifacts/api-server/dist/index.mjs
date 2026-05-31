@@ -66178,26 +66178,44 @@ var logger = (0, import_pino.default)({
 });
 
 // src/bot/index.ts
-var SYSTEM_PROMPT = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon/Centrifuge.
+var SYSTEM_PROMPT = `You are SX Fund AI Assistant \u2014 an expert in RWA (Real World Assets) agricultural trade finance on Polygon.
 
 You help users of the SX Fund SED-Hub platform with:
 
 **Pool Management:**
 - 3 tranches: DROP (70%, 6-8% APR, senior), MEZZ (10%, 10-12% APR), TIN (20%, 15-18% APR, junior)
 - Pool TVL: $262,500 USDC | Underlying: \u20AC350,000 EUR | LTV: 75%
-- Network: Polygon | Protocol: Centrifuge | Issuer: Cereal Crops Trading LLP
+- Network: Polygon | Issuer: Cereal Crops Trading LLP (CCT LLP)
+
+**Strategy (Hybrid approach \u2014 chosen):**
+- Phase 1 (NOW): Own pool on Polygon via thirdweb + Gnosis Safe 2-of-3
+- Phase 2: Mint NFT RWA-SX-009 (Sunflower 20.2MT, $15,150) and RWA-SX-010 (Feed Corn 23MT, $3,450)
+- Phase 3: First investors, accumulate deal history
+- Phase 4 (6-12 months): Submit POP to Centrifuge DAO with real track record
+- NOT going directly to Centrifuge \u2014 own pool first for speed and control
+
+**Fastest path to first financing (2-3 weeks):**
+1. \u0410\u043D\u0434\u0440\u0435\u0439: create ThirdWeb project \u2192 new deployer wallet \u2192 fund with MATIC
+2. \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 + \u0414\u0430\u043D\u0438\u043B: create Safe 2-of-3 at app.safe.global (Polygon)
+3. Mint NFT RWA-SX-009 and RWA-SX-010 \u2192 recipient = Safe address
+4. \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u0430: complete Loan Agreement + Assignment for IT-290426
+5. Deploy pool contract on Polygon via thirdweb
+6. First investor onboarding
 
 **Deals & Assets:**
-- 10 FG Geniivske trade contracts (Oct 2025\u2013May 2026) on IPFS
-- NFT-backed assets on Polygon, Centrifuge integration
+- 10 FG Geniivske trade contracts on IPFS (manifest: QmeghB6yMHHznFp6tBW7cLTeLAsHrNLo6sFkPXnMKRMsvS)
+- Priority NFTs: RWA-SX-009 (Sunflower, metadata QmRRDiY4\u2026) and RWA-SX-010 (Feed Corn, metadata QmVZoiC\u2026)
 - Oracle events: contract_signed \u2192 prepayment_confirmed \u2192 goods_shipped \u2192 goods_received \u2192 payment_received \u2192 maturity
 
-**Investors:**
-- KYC/AML via AMLBot, types: institutional, crypto, family_office, individual
-- DROP = conservative (6-8%), MEZZ = balanced (10-12%), TIN = aggressive (15-18%)
+**Team roles:**
+- \u0410\u043D\u0434\u0440\u0435\u0439 (@alpariod): Owner, Tech lead, ThirdWeb deployer
+- \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 (@Grygorii_Damekin): Owner, Safe signer 1 (Ledger)
+- \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u0430 (@sasha_damekina): Legal Officer \u2014 documents
+- \u0414\u0430\u043D\u0438\u043B (@danii191191): Tech, Safe signer 2 (MetaMask)
 
 **Security:**
-- Gnosis Safe 2-of-3 multisig (\u0410\u043D\u0434\u0440\u0435\u0439 Ledger + \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 MetaMask + TBD)
+- Gnosis Safe 2-of-3 (\u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 Ledger + \u0414\u0430\u043D\u0438\u043B MetaMask + TBD) \u2014 CRITICAL first step
+- OLD wallets 0x7feE... and 0x83309B... are COMPROMISED \u2014 never use
 - AML flow: unique temp wallet \u2192 AMLBot check \u2192 sweep to Safe
 - ChainGPT for smart contract auditing
 
@@ -66215,13 +66233,8 @@ function getDashboardUrl() {
   if (domains) return `https://${domains}/sed-hub/`;
   return "https://sx-fund.replit.app/sed-hub/";
 }
-function getWorkspaceUrl() {
-  const domains = process.env.REPLIT_DOMAINS?.split(",")[0];
-  if (domains) return `https://${domains}/sed-hub/workspace`;
-  return "https://sx-fund.replit.app/sed-hub/workspace";
-}
 function mainMenu() {
-  return new InlineKeyboard().text("\u{1F4CA} \u0421\u0442\u0430\u0442\u0443\u0441 \u043F\u0443\u043B\u0430", "cmd:status").text("\u{1F4CB} \u0421\u0434\u0435\u043B\u043A\u0438", "cmd:deals").row().text("\u{1F510} \u042D\u0441\u043A\u0440\u043E\u0443", "cmd:escrow").text("\u{1F517} Oracle Feed", "cmd:oracle").row().text("\u{1F465} \u0418\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u044B", "cmd:investors").text("\u{1F4B0} \u0422\u0440\u0430\u043D\u0448\u0438", "cmd:tranches").row().text("\u{1F512} \u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", "cmd:security").text("\u2753 \u041F\u043E\u043C\u043E\u0449\u044C", "cmd:help").row().url("\u{1F310} SED-Hub Dashboard", getDashboardUrl()).url("\u{1F4CB} Team Workspace", getWorkspaceUrl()).row().url("\u{1F4D3} Notion Dashboard", NOTION_URL).text("\u{1F5D1} \u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0447\u0430\u0442", "cmd:clear");
+  return new InlineKeyboard().text("\u{1F4CA} \u0421\u0442\u0430\u0442\u0443\u0441 \u043F\u0443\u043B\u0430", "cmd:status").text("\u{1F4CB} \u0421\u0434\u0435\u043B\u043A\u0438", "cmd:deals").row().text("\u{1F510} \u042D\u0441\u043A\u0440\u043E\u0443", "cmd:escrow").text("\u{1F517} Oracle Feed", "cmd:oracle").row().text("\u{1F465} \u0418\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u044B", "cmd:investors").text("\u{1F4B0} \u0422\u0440\u0430\u043D\u0448\u0438", "cmd:tranches").row().text("\u{1F5F3} \u041C\u043E\u0439 \u043F\u043B\u0430\u043D", "cmd:plan").text("\u{1F512} \u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C", "cmd:security").row().url("\u{1F310} SED-Hub", "https://sed-hub.trinityfund.io").url("\u{1F5F3} DAO \u0413\u043E\u043B\u043E\u0441\u043E\u0432\u0430\u043D\u0438\u044F", "https://sed-hub.trinityfund.io/dao").row().url("\u{1F4D3} Notion", NOTION_URL).text("\u2753 \u041F\u043E\u043C\u043E\u0449\u044C", "cmd:help").row().text("\u{1F5D1} \u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0447\u0430\u0442", "cmd:clear");
 }
 async function handleStatus(ctx) {
   await ctx.replyWithChatAction("typing");
@@ -66479,11 +66492,168 @@ async function handleHelp(ctx) {
 /investors \u2014 \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430 \u0438\u043D\u0432\u0435\u0441\u0442\u043E\u0440\u043E\u0432
 /tranches \u2014 \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0442\u0440\u0430\u043D\u0448\u0435\u0439 DROP/MEZZ/TIN
 /security \u2014 AML \u0438 Safe \u043C\u0443\u043B\u044C\u0442\u0438\u043F\u043E\u0434\u043F\u0438\u0441\u044C
+/plan \u2014 \u{1F5F3} \u0442\u0432\u043E\u0439 \u043F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043B\u0430\u043D \u043F\u043E \u0448\u0430\u0433\u0430\u043C
+/remind \u2014 \u{1F4E4} \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u043D\u0430\u043F\u043E\u043C\u0438\u043D\u0430\u043D\u0438\u044F \u0432\u0441\u0435\u0439 \u043A\u043E\u043C\u0430\u043D\u0434\u0435 \\(admin\\)
 /clear \u2014 \u043E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0438\u0441\u0442\u043E\u0440\u0438\u044E \u0447\u0430\u0442\u0430 \u0441 AI
 /help \u2014 \u044D\u0442\u0430 \u0441\u043F\u0440\u0430\u0432\u043A\u0430
 
 _\u0418\u043B\u0438 \u043F\u0440\u043E\u0441\u0442\u043E \u043D\u0430\u043F\u0438\u0448\u0438 \u043B\u044E\u0431\u043E\u0439 \u0432\u043E\u043F\u0440\u043E\u0441 \u2014 AI \u043E\u0442\u0432\u0435\u0442\u0438\u0442\\._`,
     { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
+  );
+}
+var TEAM = {
+  alpariod: {
+    name: "\u0410\u043D\u0434\u0440\u0435\u0439",
+    chatId: 8532055371,
+    role: "Deployer",
+    emoji: "\u{1F527}",
+    steps: [
+      "\u2699\uFE0F *\u042D\u0422\u0410\u041F 1 \u2014 Deploy NFT Collection*\n1\\. \u0417\u0430\u0439\u0434\u0438 \u043D\u0430 [thirdweb\\.com](https://thirdweb.com/dashboard) \u2192 \u043D\u043E\u0432\u044B\u0439 \u043F\u0440\u043E\u0435\u043A\u0442\n2\\. \u0421\u043E\u0437\u0434\u0430\u0439 *Server Wallet* \\(Polygon mainnet\\)\n3\\. \u0417\u0430\u0434\u0435\u043F\u043B\u043E\u0439 *NFT Collection \\(ERC\\-721\\)*\n4\\. \u0417\u0430\u043B\u0435\u0439 2\u20135 POL \u043D\u0430 Server Wallet \u0434\u043B\u044F \u0433\u0430\u0437\u0430\n5\\. \u041F\u0440\u0438\u0448\u043B\u0438 \u0430\u0434\u0440\u0435\u0441 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u0430 \u0432 \u0447\u0430\u0442 \\(\u0434\u043B\u044F PolygonScan\\)",
+      "\u{1F4C4} *\u042D\u0422\u0410\u041F 2 \u2014 Metadata \\(\u043F\u043E\u0441\u043B\u0435 CID \u043E\u0442 \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u044B\\)*\n6\\. \u041F\u043E\u043B\u0443\u0447\u0438 CID \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u043D\u044B\u0445 PDF \u043E\u0442 \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u044B\n7\\. \u0421\u043E\u0431\u0435\u0440\u0438 *metadata\\.json* \u0434\u043B\u044F \u043A\u0430\u0436\u0434\u043E\u0433\u043E NFT:\n   \u2014 name, description, image\n   \u2014 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B \\(CID Pinata\\), SHA\\-256\n8\\. \u0417\u0430\u0433\u0440\u0443\u0437\u0438 \u043E\u0431\u0430 metadata\\.json \u043D\u0430 Pinata\n9\\. \u041F\u043E\u043B\u0443\u0447\u0438 2 CID \\(\u043F\u043E \u043E\u0434\u043D\u043E\u043C\u0443 \u043D\u0430 \u043A\u0430\u0436\u0434\u044B\u0439 NFT\\)",
+      "\u{1FA99} *\u042D\u0422\u0410\u041F 3 \u2014 Mint*\n10\\. Mint *RWA\\-SX\\-001* \\(\u0413\u0435\u043D\u0456\u0457\u0432\u0441\u044C\u043A\u0435\\) \u2192 tokenURI \\= IPFS CID\n11\\. Mint *RWA\\-SX\\-002* \\(\u0420\u0443\u0441\u0438\u043D\\) \u2192 tokenURI \\= IPFS CID\n12\\. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043E\u0431\u0430 NFT \u043D\u0430 [polygonscan\\.com](https://polygonscan.com)\n13\\. \u0423\u0431\u0435\u0434\u0438\u0441\u044C: tokenURI \u2192 \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u0439 metadata JSON"
+    ],
+    rules: [
+      "\u{1F6AB} \u041D\u0415 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0441\u0442\u0430\u0440\u044B\u0435 \u043A\u043E\u0448\u0435\u043B\u044C\u043A\u0438 \\(0x7feE\\.\\.\\., 0x83309B8c\\.\\.\\.\\)",
+      "\u{1F511} Server Wallet \u0434\u0435\u043F\u043B\u043E\u0438\u0442 \u0438 \u043C\u0438\u043D\u0442\u0438\u0442 \u2014 \u0442\u044B \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u0448\u044C \u0438\u043C \u0447\u0435\u0440\u0435\u0437 ThirdWeb",
+      "\u{1F4E6} \u041C\u0438\u043D\u0442 \u0442\u043E\u043B\u044C\u043A\u043E \u043F\u043E\u0441\u043B\u0435 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044F CID \u043E\u0442 \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u044B",
+      "\u2705 \u041A\u0430\u0436\u0434\u044B\u0439 \u044D\u0442\u0430\u043F \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0430\u0439 \u0441\u0441\u044B\u043B\u043A\u043E\u0439 \u043D\u0430 PolygonScan"
+    ]
+  },
+  grygorii_damekin: {
+    name: "\u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439",
+    chatId: 5083559046,
+    role: "Owner \xB7 Safe Signer 2 (Ledger)",
+    emoji: "\u{1F451}",
+    steps: [
+      "\u{1F510} *\u042D\u0422\u0410\u041F 4 \u2014 \u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C Safe \\(\u043F\u043E\u0441\u043B\u0435 \u0414\u0430\u043D\u0438\u043B\u0430\\)*\n1\\. \u041E\u0431\u043D\u043E\u0432\u0438 \u043F\u0440\u043E\u0448\u0438\u0432\u043A\u0443 Ledger \u2192 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u0438 Ethereum \\+ Polygon app\n2\\. \u041F\u043E\u043B\u0443\u0447\u0438 invite \u0432 Safe \u043E\u0442 \u0414\u0430\u043D\u0438\u043B\u0430 \\(@danii191191\\)\n3\\. \u041E\u0442\u043A\u0440\u043E\u0439 [app\\.safe\\.global](https://app.safe.global) \u2192 \u043F\u043E\u0434\u043F\u0438\u0448\u0438 \u043A\u0430\u043A Signer 2\n4\\. \u041F\u0440\u0438\u0448\u043B\u0438 \u0430\u0434\u0440\u0435\u0441 Safe \u0432 \u0447\u0430\u0442 \\(@alpariod\\)",
+      "\u{1F4CB} *\u042D\u0422\u0410\u041F 5 \u2014 \u0423\u0441\u043B\u043E\u0432\u0438\u044F \u0437\u0430\u0439\u043C\u0430 \\+ \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B*\n5\\. \u0423\u0442\u0432\u0435\u0440\u0434\u0438 \u0443\u0441\u043B\u043E\u0432\u0438\u044F \u0437\u0430\u0439\u043C\u0430: LTV, yield, \u0441\u0440\u043E\u043A, \u0432\u0430\u043B\u044E\u0442\u0430\n6\\. \u041F\u043E\u0434\u043F\u0438\u0448\u0438 *Loan Agreement* \\(\u043E\u0442 \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u044B\\)\n7\\. \u041F\u043E\u0434\u043F\u0438\u0448\u0438 *Assignment\\/Pledge* \\(NFT \u043A\u0430\u043A \u0437\u0430\u043B\u043E\u0433\\)\n8\\. \u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438 lender \u2014 \u043A\u0442\u043E \u043F\u0435\u0440\u0435\u0432\u043E\u0434\u0438\u0442 USDT\n9\\. \u0412\u044B\u0431\u0435\u0440\u0438 3\\-\u0433\u043E signatory \u0434\u043B\u044F Safe \\(\u043D\u0430 \u0442\u0432\u043E\u0451 \u0443\u0441\u043C\u043E\u0442\u0440\u0435\u043D\u0438\u0435\\)",
+      "\u{1F4B0} *\u042D\u0422\u0410\u041F 5 \u2014 \u041F\u0435\u0440\u0435\u0432\u043E\u0434 \u0437\u0430\u0439\u043C\u0430*\n10\\. Lender \u043F\u0435\u0440\u0435\u0432\u043E\u0434\u0438\u0442 USDT \u043D\u0430 Safe \\(\u0438\u043B\u0438 \u043A\u043E\u0448\u0435\u043B\u0451\u043A\\)\n11\\. NFT\\-transfer \u0432 \u0437\u0430\u043B\u043E\u0433 lender'\u0443 \\(2\\-of\\-3 Safe\\)\n12\\. \u0417\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u0443\u0439 \u043A\u0443\u0440\u0441 UAH/USD \u043D\u0430 \u0434\u0430\u0442\u0443 \u0441\u0434\u0435\u043B\u043A\u0438\n13\\. \u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0435 USDT \u0432 \u0447\u0430\u0442 \u043A\u043E\u043C\u0430\u043D\u0434\u044B"
+    ],
+    rules: [
+      "\u{1F451} \u0422\u044B Owner \u2014 \u0444\u0438\u043D\u0430\u043B\u044C\u043D\u043E\u0435 \u0441\u043B\u043E\u0432\u043E \u043F\u043E \u0443\u0441\u043B\u043E\u0432\u0438\u044F\u043C \u0437\u0430\u0439\u043C\u0430",
+      "\u{1F510} \u0422\u044B Safe Signer 2 \\(Ledger\\) \u2014 \u043F\u043E\u0434\u043F\u0438\u0441\u044B\u0432\u0430\u0435\u0448\u044C \u043A\u0430\u0437\u043D\u0443",
+      "\u270B 3\\-\u0433\u043E signatory \u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0442\u044B",
+      "\u{1F4DD} \u041F\u043E\u0434\u043F\u0438\u0441\u044B\u0432\u0430\u0435\u0448\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043F\u043E\u0441\u043B\u0435 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u044B"
+    ]
+  },
+  sasha_damekina: {
+    name: "\u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u0430",
+    chatId: 521990485,
+    role: "Legal \xB7 Docs",
+    emoji: "\u{1F4CB}",
+    steps: [
+      "\u{1F4DD} *\u042D\u0422\u0410\u041F 2 \u2014 Loan Agreement*\n1\\. \u0417\u0430\u043F\u043E\u043B\u043D\u0438 *Loan Agreement* \\(\u0448\u0430\u0431\u043B\u043E\u043D \u0435\u0441\u0442\u044C\\):\n   \u2014 \u0421\u0442\u043E\u0440\u043E\u043D\u044B: CCT LLP \u2194 \u0424\u0413 \u0413\u0435\u043D\u0456\u0457\u0432\u0441\u044C\u043A\u0435\n   \u2014 \u0421\u0443\u043C\u043C\u0430: \\$15,150 \xB7 \u0421\u0440\u043E\u043A \xB7 \u041A\u0443\u0440\u0441 UAH/USD\n2\\. \u0417\u0430\u043F\u043E\u043B\u043D\u0438 *Assignment of Receivables*\n3\\. \u0417\u0430\u043F\u043E\u043B\u043D\u0438 *Pledge Agreement* \\(NFT \u043A\u0430\u043A \u0437\u0430\u043B\u043E\u0433\\)\n4\\. \u041F\u043E\u0434\u043F\u0438\u0441\u0438 \u043E\u0431\u0435\u0438\u0445 \u0441\u0442\u043E\u0440\u043E\u043D: \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 \\+ \u0414\u0430\u043D\u0438\u043B \u043E\u0442 CCT LLP",
+      "\u{1F4E4} *\u042D\u0422\u0410\u041F 2 \u2014 \u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u043D\u0430 IPFS*\n5\\. \u0417\u0430\u0433\u0440\u0443\u0437\u0438 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u043D\u044B\u0435 PDF \u043D\u0430 Pinata\n6\\. \u041F\u043E\u043B\u0443\u0447\u0438 CID \u0434\u043B\u044F \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430\n7\\. \u041F\u0435\u0440\u0435\u0434\u0430\u0439 CID \u0410\u043D\u0434\u0440\u0435\u044E \\(@alpariod\\) \u2014 \u043D\u0443\u0436\u043D\u043E \u0434\u043B\u044F metadata JSON\n8\\. \u0421\u0432\u0435\u0440\u044C SHA\\-256 \u0445\u0435\u0448\u0438 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043D\u044B\u0445 \u0444\u0430\u0439\u043B\u043E\u0432",
+      "\u23F3 *\u042D\u0422\u0410\u041F 6 \u2014 \u041F\u043E\u0433\u0430\u0448\u0435\u043D\u0438\u0435 \\(\u043F\u043E\u0437\u0436\u0435\\)*\n9\\. \u0417\u0430\u0451\u043C\u0449\u0438\u043A \u043F\u043E\u0433\u0430\u0448\u0430\u0435\u0442 \u0437\u0430\u0439\u043C \\+ \u043F\u0440\u043E\u0446\u0435\u043D\u0442\u044B \u0432 USDT\n10\\. \u0421\u0444\u043E\u0440\u043C\u0438\u0440\u0443\u0439 *Investor Proof* \\(\u0437\u0430\u043A\u0440\u044B\u0432\u0430\u044E\u0449\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\\)\n11\\. NFT \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u0437\u0430\u0451\u043C\u0449\u0438\u043A\u0443 \u043F\u043E\u0441\u043B\u0435 \u043F\u043E\u0433\u0430\u0448\u0435\u043D\u0438\u044F"
+    ],
+    rules: [
+      "\u{1F4C4} \u0422\u0432\u043E\u0439 output \u2014 \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u043D\u044B\u0435 PDF \\+ CID \u043D\u0430 Pinata",
+      "\u23F1 \u0410\u043D\u0434\u0440\u0435\u0439 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u043C\u0438\u043D\u0442\u0438\u0442\u044C \u0431\u0435\u0437 \u0442\u0432\u043E\u0438\u0445 CID",
+      "\u270B \u0422\u044B \u041D\u0415 \u0434\u0435\u043F\u043B\u043E\u0438\u0448\u044C \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u044B \u0438 \u041D\u0415 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u0448\u044C Safe",
+      "\u{1F517} \u041F\u0435\u0440\u0435\u0434\u0430\u0439 CID \u0441\u0440\u0430\u0437\u0443 \u043A\u0430\u043A \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u043B\u0430 \u2014 \u043D\u0435 \u0436\u0434\u0438"
+    ]
+  },
+  danii191191: {
+    name: "\u0414\u0430\u043D\u0438\u043B",
+    chatId: 152360788,
+    role: "Security \xB7 Safe Creator (Signer 1)",
+    emoji: "\u{1F510}",
+    steps: [
+      "\u{1F510} *\u042D\u0422\u0410\u041F 4 \u2014 \u0421\u043E\u0437\u0434\u0430\u0442\u044C Safe 2\\-of\\-3*\n1\\. MetaMask \u2192 \u0441\u0435\u0442\u044C *Polygon Mainnet* \\(chainId 137\\)\n2\\. \u041E\u0442\u043A\u0440\u043E\u0439 [app\\.safe\\.global/new\\-safe](https://app.safe.global/new-safe)\n3\\. \u0412\u044B\u0431\u0435\u0440\u0438 \u0441\u0435\u0442\u044C: *Polygon*\n4\\. \u0414\u043E\u0431\u0430\u0432\u044C \u043F\u043E\u0434\u043F\u0438\u0441\u0430\u043D\u0442\u043E\u0432:\n   \u2014 *Signer 1:* \u0442\u0432\u043E\u0439 \u043A\u043E\u0448\u0435\u043B\u0451\u043A MetaMask \\(\u0442\u044B\\)\n   \u2014 *Signer 2:* \u043A\u043E\u0448\u0435\u043B\u0451\u043A \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u044F \\(Ledger\\)\n   \u2014 *Signer 3:* \u043D\u0430 \u0443\u0441\u043C\u043E\u0442\u0440\u0435\u043D\u0438\u0435 \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u044F\n5\\. \u041F\u043E\u0440\u043E\u0433: *2\\-of\\-3* \u2192 \u0437\u0430\u0434\u0435\u043F\u043B\u043E\u0439 Safe\n6\\. \u041F\u0440\u0438\u0448\u043B\u0438 invite \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u044E \\(@Grygorii\\_Damekin\\)\n7\\. \u0412\u0435\u0440\u0438\u0444\u0438\u0446\u0438\u0440\u0443\u0439 \u0430\u0434\u0440\u0435\u0441 Server Wallet \u0410\u043D\u0434\u0440\u0435\u044F \u0432 Safe",
+      "\u{1F6E1} *\u041F\u043E\u0441\u043B\u0435 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F Safe*\n8\\. \u0414\u043E\u0436\u0434\u0438\u0441\u044C \u043F\u043E\u0434\u043F\u0438\u0441\u0438 \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u044F \\(Signer 2\\)\n9\\. \u0423\u0431\u0435\u0434\u0438\u0441\u044C \u0447\u0442\u043E Safe \u0430\u043A\u0442\u0438\u0432\u0435\u043D \u043D\u0430 polygonscan\n10\\. \u041F\u0440\u0438\u0448\u043B\u0438 \u0430\u0434\u0440\u0435\u0441 Safe \u0432 \u0447\u0430\u0442 \\(@alpariod\\)"
+    ],
+    rules: [
+      "\u{1F510} \u0422\u044B Safe Signer 1 \u2014 \u0442\u044B \u0441\u043E\u0437\u0434\u0430\u0451\u0448\u044C Safe",
+      "\u{1F4E8} \u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u043F\u0440\u0438\u0448\u043B\u0438 invite \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u044E, \u043F\u043E\u0442\u043E\u043C \u0436\u0434\u0438",
+      "\u2705 Safe \u0433\u043E\u0442\u043E\u0432 \u0442\u043E\u043B\u044C\u043A\u043E \u043A\u043E\u0433\u0434\u0430 \u0432\u0441\u0435 3 signatory \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u043B\u0438",
+      "\u{1F6E1} \u0422\u044B \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0448\u044C \u0437\u0430 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C \u043A\u043E\u0448\u0435\u043B\u044C\u043A\u043E\u0432 \u0438 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u043E\u0432"
+    ]
+  }
+};
+var ADMIN_CHAT_ID = 8532055371;
+async function handlePlan(ctx) {
+  const chatId = ctx.chat?.id;
+  const username = ctx.from?.username?.toLowerCase() ?? "";
+  const member = Object.entries(TEAM).find(
+    ([k, m]) => m.chatId === chatId || username === k
+  )?.[1];
+  if (!member) {
+    await ctx.reply(
+      `\u{1F4CB} *SX Fund \u2014 MVP \u0414\u043E\u0440\u043E\u0436\u043D\u0430\u044F \u043A\u0430\u0440\u0442\u0430*
+
+\u2699\uFE0F *\u042D\u0442\u0430\u043F 1:* \u0410\u043D\u0434\u0440\u0435\u0439 \u0434\u0435\u043F\u043B\u043E\u0438\u0442 ERC\\-721 \u043D\u0430 ThirdWeb
+\u{1F4C4} *\u042D\u0442\u0430\u043F 2:* \u0410\u043B\u0435\u043A\u0441\u0430\u043D\u0434\u0440\u0430 \u0433\u043E\u0442\u043E\u0432\u0438\u0442 \\+ \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u0442 PDF \u043D\u0430 IPFS
+\u{1FA99} *\u042D\u0442\u0430\u043F 3:* \u0410\u043D\u0434\u0440\u0435\u0439 \u043C\u0438\u043D\u0442\u0438\u0442 RWA\\-SX\\-001 \u0438 RWA\\-SX\\-002
+\u{1F510} *\u042D\u0442\u0430\u043F 4:* \u0414\u0430\u043D\u0438\u043B \u0441\u043E\u0437\u0434\u0430\u0451\u0442 Safe 2\\-of\\-3, \u0413\u0440\u0438\u0433\u043E\u0440\u0438\u0439 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0430\u0435\u0442
+\u{1F4B0} *\u042D\u0442\u0430\u043F 5:* Lender \u043F\u0435\u0440\u0435\u0432\u043E\u0434\u0438\u0442 USDT, NFT \u0432 \u0437\u0430\u043B\u043E\u0433
+\u2705 *\u042D\u0442\u0430\u043F 6:* \u041F\u043E\u0433\u0430\u0448\u0435\u043D\u0438\u0435 \u2014 NFT \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F, \u0441\u0434\u0435\u043B\u043A\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430
+
+_\u0422\u044B \u043D\u0435 \u0432 \u0441\u043F\u0438\u0441\u043A\u0435 \u043A\u043E\u043C\u0430\u043D\u0434\u044B\\. /help \u0434\u043B\u044F \u0432\u0441\u0435\u0445 \u043A\u043E\u043C\u0430\u043D\u0434_`,
+      { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
+    );
+    return;
+  }
+  await ctx.reply(
+    `${member.emoji} *${safe(member.name)} \u2014 \u0422\u0432\u043E\u0439 \u043F\u043B\u0430\u043D*
+\u{1F464} _${safe(member.role)}_
+
+_\u0428\u0430\u0433\u0438 \u043F\u043E \u0434\u043D\u044F\u043C:_`,
+    { parse_mode: "MarkdownV2", link_preview_options: { is_disabled: true } }
+  );
+  for (const step of member.steps) {
+    await ctx.reply(step, {
+      parse_mode: "MarkdownV2",
+      link_preview_options: { is_disabled: true }
+    });
+  }
+  const rulesText = member.rules.join("\n");
+  await ctx.reply(
+    `\u26A0\uFE0F *\u041A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u043F\u0440\u0430\u0432\u0438\u043B\u0430:*
+${rulesText}
+
+\u{1F517} [SED\\-Hub](https://sed\\-hub\\.trinityfund\\.io) \xB7 [DAO](https://sed\\-hub\\.trinityfund\\.io/dao)`,
+    {
+      parse_mode: "MarkdownV2",
+      link_preview_options: { is_disabled: true },
+      reply_markup: new InlineKeyboard().url("\u{1F4CA} SED-Hub", "https://sed-hub.trinityfund.io").url("\u{1F5F3} DAO Votes", "https://sed-hub.trinityfund.io/dao").row().text("\u25C0\uFE0F \u041C\u0435\u043D\u044E", "cmd:menu")
+    }
+  );
+}
+async function handleRemind(ctx) {
+  const chatId = ctx.chat?.id;
+  if (chatId !== ADMIN_CHAT_ID) {
+    await ctx.reply("\u{1F512} \u0422\u043E\u043B\u044C\u043A\u043E \u0434\u043B\u044F \u0430\u0434\u043C\u0438\u043D\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0430\\.", { parse_mode: "MarkdownV2" });
+    return;
+  }
+  await ctx.reply("\u{1F4E4} \u041E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u044E \u043D\u0430\u043F\u043E\u043C\u0438\u043D\u0430\u043D\u0438\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0435\\.\\.\\.", { parse_mode: "MarkdownV2" });
+  let sent = 0;
+  for (const [, member] of Object.entries(TEAM)) {
+    try {
+      const stepsShort = member.steps.slice(0, 3).join("\n\n");
+      await bot.api.sendMessage(
+        member.chatId,
+        `\u{1F514} *\u041D\u0430\u043F\u043E\u043C\u0438\u043D\u0430\u043D\u0438\u0435 \u2014 SX Fund*
+
+\u041F\u0440\u0438\u0432\u0435\u0442, *${safe(member.name)}*\\! \u0411\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0437\u0430\u0434\u0430\u0447\u0438:
+
+` + stepsShort + `
+
+_\u041F\u043E\u043B\u043D\u044B\u0439 \u043F\u043B\u0430\u043D: /plan_
+_SED\\-Hub: https://sed\\-hub\\.trinityfund\\.io_`,
+        {
+          parse_mode: "MarkdownV2",
+          link_preview_options: { is_disabled: true },
+          reply_markup: new InlineKeyboard().url("\u{1F4CB} \u041C\u043E\u0439 \u043F\u043B\u0430\u043D", "https://sed-hub.trinityfund.io/dao").text("\u{1F4D6} \u0414\u0435\u0442\u0430\u043B\u0438", "cmd:plan")
+        }
+      );
+      sent++;
+    } catch (err) {
+      logger.warn({ err, member: member.name }, "remind: failed to send");
+    }
+  }
+  await ctx.reply(
+    `\u2705 \u041D\u0430\u043F\u043E\u043C\u0438\u043D\u0430\u043D\u0438\u044F \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u044B: *${sent}/${Object.keys(TEAM).length}* \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432`,
+    { parse_mode: "MarkdownV2" }
   );
 }
 async function handleClear(ctx) {
@@ -66571,6 +66741,8 @@ bot.command("oracle", handleOracle);
 bot.command("investors", handleInvestors);
 bot.command("tranches", handleTranches);
 bot.command("security", handleSecurity);
+bot.command("plan", handlePlan);
+bot.command("remind", handleRemind);
 bot.command("help", handleHelp);
 bot.command("clear", handleClear);
 bot.command("menu", handleMenu);
@@ -66582,6 +66754,7 @@ var CALLBACK_MAP = {
   "cmd:investors": handleInvestors,
   "cmd:tranches": handleTranches,
   "cmd:security": handleSecurity,
+  "cmd:plan": handlePlan,
   "cmd:help": handleHelp,
   "cmd:clear": handleClear,
   "cmd:menu": handleMenu
