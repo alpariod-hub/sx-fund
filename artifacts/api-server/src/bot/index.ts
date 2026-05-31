@@ -398,7 +398,7 @@ const TEAM: Record<string, { name: string; chatId: number; role: string; emoji: 
     role: "Admin · Deployer",
     emoji: "🔵",
     steps: [
-      "📅 *День 1–2: Кошельки*\n1\\. [app\\.thirdweb\\.com](https://thirdweb.com/dashboard) → новый проект \\(НЕ старый Playground\\!\\)\n2\\. Скопируй адрес нового Deployer Wallet\n3\\. Пополни ~5–10 MATIC для газа\n4\\. Пришли адрес Deployer Wallet в чат команды",
+      "📅 *День 1–2: Кошельки*\n1\\. [app\\.thirdweb\\.com](https://thirdweb.com/dashboard) → новый проект \\(НЕ старый Playground\\!\\)\n2\\. Скопируй адрес нового Deployer Wallet\n3\\. Пополни \\~5–10 MATIC для газа\n4\\. Пришли адрес Deployer Wallet в чат команды",
       "📅 *День 2–3: Деплой контрактов \\(после Safe от Григория\\)*\n5\\. Обнови адрес Safe в системе \\(SED\\-Hub \\+ \\.env\\)\n6\\. Задеплой *SXFToken* \\(ERC\\-20, 1B supply\\)\n7\\. Задеплой *RWANFT* \\(ERC\\-721, KYC\\-gated\\)\n8\\. Задеплой пул\\-контракт через ThirdWeb Dashboard\n9\\. Установи owner контрактов \\= Gnosis Safe \\(НЕ свой кошелёк\\!\\)",
       "📅 *День 3–7: Oracle \\+ Docs*\n10\\. Проверь все 46 документов на IPFS \\(master CID\\)\n11\\. Сверь SHA\\-256 хеши с metadata JSON\n12\\. Задеплой Oracle контракт \\(6 чекпоинтов\\)\n13\\. Задеплой RWAMarketplace \\(buyback \\& burn\\)\n14\\. Подключи Oracle к пул\\-контракту",
       "📅 *День 7–14: Первый инвестор*\n15\\. Протестируй цикл: верификация → KYC → инвест → NFT\n16\\. Проверь audit\\_log \\(append\\-only\\)\n17\\. Проверь rate limiter и CORS\n18\\. Проголосуй в DAO по dao\\-001 и dao\\-005",
@@ -422,7 +422,7 @@ const TEAM: Record<string, { name: string; chatId: number; role: string; emoji: 
       "📅 *День 7–14: Первый инвестор*\n15\\. Подпиши транзакцию приёма первого инвестора \\(2\\-of\\-3\\)\n16\\. Утверди KYC\\-статус первого инвестора\n17\\. Проголосуй в DAO по dao\\-001",
     ],
     rules: [
-      "👑 Ты Owner — утверждаешь крупные транзакции \\(>\\$10K\\)",
+      "👑 Ты Owner — утверждаешь крупные транзакции \\(\\>$10K\\)",
       "🔐 Ты Safe Signer 1 — подписываешь казну \\(2\\-of\\-3\\)",
       "⚠️ Критичные операции требуют 3\\-of\\-3",
       "✋ НЕ деплоишь контракты самостоятельно",
