@@ -611,7 +611,12 @@ async function getOrCreateConversation(chatId: number, userName: string): Promis
   return conv.id;
 }
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+function getOpenAIClient(): OpenAI {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY not set — AI replies unavailable");
+  }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 async function getAIReply(chatId: number, userText: string, userName: string): Promise<string> {
   const convId = await getOrCreateConversation(chatId, userName);
@@ -637,7 +642,7 @@ async function getAIReply(chatId: number, userText: string, userName: string): P
     })),
   ];
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAIClient().chat.completions.create({
     model: "gpt-4o-mini",
     max_completion_tokens: 1024,
     messages: chatMessages,
