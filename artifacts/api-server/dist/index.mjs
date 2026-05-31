@@ -66688,7 +66688,12 @@ async function getOrCreateConversation(chatId, userName) {
   const [conv] = await db.insert(conversations).values({ title: tag }).returning();
   return conv.id;
 }
-var openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY not set \u2014 AI replies unavailable");
+  }
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 async function getAIReply(chatId, userText, userName) {
   const convId = await getOrCreateConversation(chatId, userName);
   await db.insert(messages).values({
@@ -66704,7 +66709,7 @@ async function getAIReply(chatId, userText, userName) {
       content: m.content
     }))
   ];
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAIClient().chat.completions.create({
     model: "gpt-4o-mini",
     max_completion_tokens: 1024,
     messages: chatMessages
