@@ -1,0 +1,2 @@
+- [SX Fund wallet scheme](wallets-warning.md) — old wallets 0x7feE/0x83309B8c COMPROMISED; new Safe 2-of-3 + fresh deployer required before any on-chain action
+- [SX Fund NFT contract](nft-contract.md) — SXRWA NFT Drop deployed on Polygon Mainnet; contract address + PM2 env vars recorded
