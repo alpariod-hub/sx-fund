@@ -24,10 +24,9 @@ app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
 
-  // Webhook mode: Express already handles /api/bot/webhook — no polling needed.
-  // Polling mode: start long-polling (Vultr/production only).
-  // Skip polling on Replit (REPL_ID is always set there) — Vultr handles the bot.
-  if (!process.env.TELEGRAM_WEBHOOK_URL && !process.env.REPL_ID) {
+  // Webhook mode: if TELEGRAM_WEBHOOK_URL is set, Express handles /api/bot/webhook.
+  // Polling mode: start long-polling when no webhook URL is configured.
+  if (!process.env.TELEGRAM_WEBHOOK_URL) {
     startBot();
   }
 });
