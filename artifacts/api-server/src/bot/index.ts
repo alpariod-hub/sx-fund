@@ -15,47 +15,104 @@ import { logger } from "../lib/logger";
 
 const SYSTEM_PROMPT = `You are SX Fund AI Assistant — an expert in RWA (Real World Assets) agricultural trade finance on Polygon.
 
-You help users of the SX Fund SED-Hub platform with:
+You help the SX Fund team with detailed, substantive answers. Always give thorough, specific responses — never give vague or generic replies. If you don't know something specific, say so clearly and explain what you do know.
 
-**Pool Management:**
-- 3 tranches: DROP (70%, 6-8% APR, senior), MEZZ (10%, 10-12% APR), TIN (20%, 15-18% APR, junior)
-- Pool TVL: $262,500 USDC | Underlying: €350,000 EUR | LTV: 75%
-- Network: Polygon | Issuer: Cereal Crops Trading LLP (CCT LLP)
+**Current State (as of June 2026):**
+- Infrastructure COMPLETE: ERC-721 NFT Drop deployed, Safe 2-of-2 created, roles assigned
+- NFT Contract: 0x5de1bdf2C1e00D74ACcf63d816768C9EB5718404 (Polygon Mainnet)
+- Safe 2-of-2: 0x58D716D9FfaFEb1f918E96856b309C2f5c63e394 (DEFAULT_ADMIN_ROLE)
+- Server Wallet: 0xBCABb197e9BCb7F23E7Ca2AFA1aC6EA7e1cd916C (MINTER_ROLE)
+- CURRENT STAGE: Stage 1 — Minting 11 NFTs
 
-**Strategy (Hybrid approach — chosen):**
-- Phase 1 (NOW): Own pool on Polygon via thirdweb + Gnosis Safe 2-of-3
-- Phase 2: Mint NFT RWA-SX-009 (Sunflower 20.2MT, $15,150) and RWA-SX-010 (Feed Corn 23MT, $3,450)
-- Phase 3: First investors, accumulate deal history
-- Phase 4 (6-12 months): Submit POP to Centrifuge DAO with real track record
-- NOT going directly to Centrifuge — own pool first for speed and control
+**Pool structure:**
+- Issuer: Cereal Crops Trading LLP (CCT LLP), registered in England & Wales
+- Originator: FG GENIIVSKE — Ukrainian sunflower/corn farm
+- Finnish buyers: OSKUTUOTE OY (10 deals), EURO TUKATTI OY (1 deal: RWA-SX-005)
+- Total receivables: €127,648 across 11 trade finance deals
+- 3 tranches: DROP (70%, 6-8% APR, senior/safest), MEZZ (10%, 10-12% APR), TIN (20%, 15-18% APR, junior/riskiest)
+- Network: Polygon | Token standard: ERC-721
 
-**Fastest path to first financing (2-3 weeks):**
-1. Андрей: create ThirdWeb project → new deployer wallet → fund with MATIC
-2. Григорий + Данил: create Safe 2-of-3 at app.safe.global (Polygon)
-3. Mint NFT RWA-SX-009 and RWA-SX-010 → recipient = Safe address
-4. Александра: complete Loan Agreement + Assignment for IT-290426
-5. Deploy pool contract on Polygon via thirdweb
-6. First investor onboarding
+**All 11 deals:**
+- RWA-SX-001: IT-211025, Striped Sunflower, €14,960, CMR 141125-2, buyer: OSKUTUOTE OY
+- RWA-SX-002: IT-241025, Striped Sunflower, €14,960, CMR 201125-2, buyer: OSKUTUOTE OY
+- RWA-SX-003: IT-271025, Sunflower Kernel 15%, €22,540, CMR 251125-1, buyer: OSKUTUOTE OY
+- RWA-SX-004: IT-201125, Striped Sunflower, €13,640, CMR 081225-1, buyer: OSKUTUOTE OY
+- RWA-SX-005: IT-221125, Sunflower Kernel 15%, €15,232, CMR 081225-2, buyer: EURO TUKATTI OY
+- RWA-SX-006: IT-260126, Striped Sunflower, €12,540, CMR 0902265-1, buyer: OSKUTUOTE OY
+- RWA-SX-007: IT-090226, Feed Corn, €3,376, CMR 120226-1, buyer: OSKUTUOTE OY
+- RWA-SX-008: IT-230426, Feed Corn, €3,680, CMR 280426-1, buyer: OSKUTUOTE OY
+- RWA-SX-009: IT-290426, Striped Sunflower, €8,080, CMR 070526-1, buyer: OSKUTUOTE OY
+- RWA-SX-010: IT-110526, Feed Corn, €3,680, CMR 150526-1, buyer: OSKUTUOTE OY
+- RWA-SX-011: IT-221025, Striped Sunflower, €14,960, CMR 141125-3, buyer: OSKUTUOTE OY
 
-**Deals & Assets:**
-- 10 FG Geniivske trade contracts on IPFS (manifest: QmeghB6yMHHznFp6tBW7cLTeLAsHrNLo6sFkPXnMKRMsvS)
-- Priority NFTs: RWA-SX-009 (Sunflower, metadata QmRRDiY4…) and RWA-SX-010 (Feed Corn, metadata QmVZoiC…)
-- Oracle events: contract_signed → prepayment_confirmed → goods_shipped → goods_received → payment_received → maturity
+**Stage roadmap:**
+- Stage 0 (✅ DONE): Infrastructure — contracts, Safe, roles
+- Stage 1 (🔄 CURRENT): Mint 11 NFTs — Андрей via ThirdWeb dashboard
+- Stage 2 (🔒 LOCKED): CIDs for RWA-SX-011 docs — Александра browses Pinata folder
+- Stage 3 (🔒 LOCKED): Legal documents — Александра prepares AFTER mint completes
+- Stage 4 (🔒 LOCKED): Fund disbursement — Safe 2-of-2 (Данил + Григорий) AFTER legal signed
+- Stage 5 (🔒 LOCKED): Investor onboarding — Андрей
+- Stage 6 (🔒 LOCKED): Repayment & closure
 
-**Team roles:**
-- Андрей (@alpariod): Owner, Tech lead, ThirdWeb deployer
-- Григорий (@Grygorii_Damekin): Owner, Safe signer 1 (Ledger)
-- Александра (@sasha_damekina): Legal Officer — documents
-- Данил (@danii191191): Tech, Safe signer 2 (MetaMask)
+**Team:**
+- Андрей (@alpariod): Owner, Tech lead — Stages 1, 5
+- Григорий (@Grygorii_Damekin): Owner, Safe Signer (Ledger hardware wallet) — Stages 3, 4, 6
+- Александра (@sasha_damekina): Legal & Documents specialist — Stages 2, 3, 6
+- Данил (@danii191191): Tech, Safe Signer (MetaMask) — Stage 4 ONLY
 
-**Security:**
-- Gnosis Safe 2-of-3 (Григорий Ledger + Данил MetaMask + TBD) — CRITICAL first step
-- OLD wallets 0x7feE... and 0x83309B... are COMPROMISED — never use
-- AML flow: unique temp wallet → AMLBot check → sweep to Safe
-- ChainGPT for smart contract auditing
+**LEGAL DOCUMENTS — Stage 3 (Александра's responsibility):**
+
+Все три документа готовятся Александрой ПОСЛЕ того как 11 NFT заминчены. Вот детали каждого:
+
+1. **Loan Agreement (Договор займа)**
+   - Стороны: CCT LLP (займодавец/кредитор) ↔ ФГ Геніївське (заёмщик)
+   - Сумма: €127,648 (сумма всех 11 дебиторок)
+   - Срок: 30 дней с даты подписания
+   - Обеспечение: Уступка дебиторки + залог NFT
+   - Содержание: Сумма, срок, процентная ставка, условия погашения, реквизиты сторон, подписи
+   - Формат: PDF, подписывают Григорий (от CCT LLP) + представитель ФГ Геніївське
+   - Пример структуры: Преамбула → Предмет займа → Порядок выдачи → Срок и возврат → Проценты → Обеспечение → Реквизиты → Подписи
+
+2. **Assignment of Receivables (Уступка прав требования / Цессия)**
+   - Стороны: ФГ Геніївське (цедент) → CCT LLP (цессионарий)
+   - Предмет: Передача прав на получение оплаты по 11 инвойсам от OSKUTUOTE OY и EURO TUKATTI OY
+   - Содержание: Список всех 11 дебиторок с суммами, номерами инвойсов, датами, покупателями
+   - Цель: CCT LLP получает право напрямую взыскать деньги с финских покупателей
+   - Подписи: Григорий (CCT LLP) + представитель ФГ Геніївське
+   - Важно: К документу прикладываются копии всех 11 CMR-накладных как приложение
+
+3. **Pledge Agreement / NFT Pledge (Договор залога NFT)**
+   - Стороны: CCT LLP (залогодержатель) ↔ ФГ Геніївське (залогодатель)  
+   - Предмет залога: 11 NFT токенов RWA-SX-001 через RWA-SX-011 на контракте 0x5de1bdf2C1e00D74ACcf63d816768C9EB5718404 (Polygon)
+   - Смысл: NFT служат цифровым обеспечением займа; если ФГ не вернёт деньги — CCT LLP может реализовать NFT
+   - Содержание: Описание NFT (tokenId, контракт, сеть), условия обращения взыскания, Safe адрес хранения
+   - Подписи: Григорий (CCT LLP) + представитель ФГ Геніївське
+
+**Где найти примеры документов:**
+- Loan Agreement: поискать "trade finance loan agreement template" на LexisNexis, PracticalLaw, или BIMCO
+- Assignment of Receivables: "assignment of receivables agreement UK template" — English law шаблоны
+- Pledge Agreement: специфично для Web3/NFT — аналог стандартного pledge agreement но с описанием блокчейн-актива
+- Рекомендация Александре: взять за основу английские (English law, поскольку CCT LLP зарегистрирована в England & Wales) шаблоны и адаптировать под наши реквизиты
+
+**Реквизиты для документов:**
+- CCT LLP: Cereal Crops Trading LLP, England & Wales
+- ФГ Геніївське: украинское фермерское хозяйство, оригинатор поставок
+- Safe (хранение NFT): 0x58D716D9FfaFEb1f918E96856b309C2f5c63e394 (Polygon)
+- NFT контракт: 0x5de1bdf2C1e00D74ACcf63d816768C9EB5718404
+
+**Critical rules:**
+- NEVER reference old wallets 0x7feE... or 0x83309B... (COMPROMISED)
+- Данил: NOT to use Safe Transaction Builder until Stage 4
+- No transferOwnership function on this contract (uses AccessControl)
+- Source of truth for deal data: Александра's spreadsheet
 
 Respond in the same language as the user (Ukrainian, Russian, or English).
-Be concise and professional. Format with Telegram Markdown.`;
+Give detailed, practical, actionable answers. Use bullet points and structure. Format with Telegram Markdown.`;
+
+// ─── Relay state ───────────────────────────────────────────────────────────────
+// userId → true means the user is in "waiting for relay message" mode
+
+const relayPending = new Set<number>();
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -69,6 +126,41 @@ function fmtAI(text: string): string {
     .replace(/^#{1,3}\s+(.+)$/gm, "*$1*")
     .replace(/^[-•]\s/gm, "• ")
     .replace(/^(\d+)\.\s/gm, "$1\\. ");
+}
+
+/** Split text into ≤4000-char chunks at paragraph boundaries for Telegram */
+function splitMessage(text: string, limit = 4000): string[] {
+  if (text.length <= limit) return [text];
+  const chunks: string[] = [];
+  let current = "";
+  for (const para of text.split("\n\n")) {
+    const block = para + "\n\n";
+    if (current.length + block.length > limit) {
+      if (current) chunks.push(current.trimEnd());
+      current = block;
+    } else {
+      current += block;
+    }
+  }
+  if (current.trimEnd()) chunks.push(current.trimEnd());
+  return chunks;
+}
+
+async function sendAIReply(ctx: Context, text: string) {
+  const formatted = fmtAI(text);
+  const parts = splitMessage(formatted);
+  const menu = new InlineKeyboard()
+    .text("📊 Статус", "cmd:status")
+    .text("📋 Сделки", "cmd:deals")
+    .row()
+    .text("◀️ Меню", "cmd:menu");
+
+  for (let i = 0; i < parts.length; i++) {
+    await ctx.reply(parts[i], {
+      parse_mode: "Markdown",
+      reply_markup: i === parts.length - 1 ? menu : undefined,
+    });
+  }
 }
 
 // ─── URLs ──────────────────────────────────────────────────────────────────────
@@ -109,6 +201,8 @@ function mainMenu() {
     .url("📓 Notion",             NOTION_URL)
     .text("❓ Помощь",            "cmd:help")
     .row()
+    .text("📩 Связь с агентом",   "cmd:agent_contact")
+    .row()
     .text("🗑 Очистить чат",      "cmd:clear");
 }
 
@@ -129,18 +223,18 @@ async function handleStatus(ctx: Context) {
 
     await ctx.reply(
       `📊 *Статус пула SX Fund*\n\n` +
-      `💰 *TVL:* $${totalTvl.toLocaleString("en")} USDC\n` +
+      `💰 *TVL:* $${safe(totalTvl.toLocaleString("en"))} USDC\n` +
       `🌐 *Сеть:* Polygon\n` +
-      `📈 *Ср\\. доходность:* ${avgYield.toFixed(1)}% APR\n\n` +
+      `📈 *Ср\\. доходность:* ${safe(avgYield.toFixed(1))}% APR\n\n` +
       `📁 *Сделки:*\n` +
       `  🟢 Активных: ${active.length}\n` +
       `  🟡 Ожидают: ${pending.length}\n` +
       `  ✅ Погашено: ${matured.length}\n` +
       `  📦 Всего: ${assets.length}\n\n` +
       `*Транши:*\n` +
-      `🟢 DROP  — 70% | 6–8% APR | Senior\n` +
-      `🟡 MEZZ — 10% | 10–12% APR | Mezz\n` +
-      `🔴 TIN    — 20% | 15–18% APR | Junior`,
+      `🟢 DROP  — 70% \\| 6–8% APR \\| Senior\n` +
+      `🟡 MEZZ — 10% \\| 10–12% APR \\| Mezz\n` +
+      `🔴 TIN    — 20% \\| 15–18% APR \\| Junior`,
       { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") }
     );
   } catch (err) {
@@ -286,7 +380,7 @@ async function handleTranches(ctx: Context) {
     `  • Первый несёт убытки\n` +
     `  • Риск: максимальный\n` +
     `  • TVL: ~\\$52,500 USDC\n\n` +
-    `_Blended yield: 9–12% APR | LTV: 75%_`,
+    `_Blended yield: 9–12% APR \\| LTV: 75%_`,
     { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") }
   );
 }
@@ -395,35 +489,34 @@ const TEAM: Record<string, { name: string; chatId: number; role: string; emoji: 
   alpariod: {
     name: "Андрей",
     chatId: 8532055371,
-    role: "Deployer",
+    role: "Owner · Tech Lead · Deployer",
     emoji: "🔧",
     steps: [
-      "⚙️ *ЭТАП 1 — Deploy NFT Collection*\n1\\. Зайди на [thirdweb\\.com](https://thirdweb.com/dashboard) → новый проект\n2\\. Создай *Server Wallet* \\(Polygon mainnet\\)\n3\\. Задеплой *NFT Collection \\(ERC\\-721\\)*\n4\\. Залей 2–5 POL на Server Wallet для газа\n5\\. Пришли адрес контракта в чат \\(для PolygonScan\\)",
-      "📄 *ЭТАП 2 — Metadata \\(после CID от Александры\\)*\n6\\. Получи CID подписанных PDF от Александры\n7\\. Собери *metadata\\.json* для каждого NFT:\n   — name, description, image\n   — документы \\(CID Pinata\\), SHA\\-256\n8\\. Загрузи оба metadata\\.json на Pinata\n9\\. Получи 2 CID \\(по одному на каждый NFT\\)",
-      "🪙 *ЭТАП 3 — Mint*\n10\\. Mint *RWA\\-SX\\-001* \\(Геніївське\\) → tokenURI \\= IPFS CID\n11\\. Mint *RWA\\-SX\\-002* \\(Русин\\) → tokenURI \\= IPFS CID\n12\\. Проверь оба NFT на [polygonscan\\.com](https://polygonscan.com)\n13\\. Убедись: tokenURI → корректный metadata JSON",
+      "⚡ *ЭТАП 1 — Минт 11 NFT \\(СЕЙЧАС\\)*\n\nКонтракт уже задеплоен и настроен:\n• NFT: `0x5de1bdf2C1e00D74ACcf63d816768C9EB5718404`\n• Server Wallet: `0xBCABb197e9BCb7F23E7Ca2AFA1aC6EA7e1cd916C`\n• MINTER\\_ROLE уже выдан ✅\n\n1\\. Запусти минт\\-скрипт через ThirdWeb SDK\n2\\. 11 NFT: RWA\\-SX\\-001 → RWA\\-SX\\-011 \\(все deals в SED\\-Hub\\)\n3\\. Для каждого tokenURI \\= IPFS CID metadata JSON\n4\\. После каждого минта: проверь txHash на polygonscan\n5\\. Скинь все 11 txHash в командный чат",
+      "📁 *ЭТАП 2 — CID документов RWA\\-SX\\-011 \\(после минта\\)*\nАлександра даст CID папки IT\\-221025 на Pinata \\— добавь в SED\\-Hub",
     ],
     rules: [
       "🚫 НЕ использовать старые кошельки \\(0x7feE\\.\\.\\., 0x83309B8c\\.\\.\\.\\)",
-      "🔑 Server Wallet деплоит и минтит — ты управляешь им через ThirdWeb",
-      "📦 Минт только после получения CID от Александры",
-      "✅ Каждый этап подтверждай ссылкой на PolygonScan",
+      "✅ Safe 2\\-of\\-2 уже создан — ничего дополнительно не деплоить",
+      "🔑 Контракт использует AccessControl, не Ownable — transferOwnership НЕ существует",
+      "📦 Все 11 метадат должны быть загружены на IPFS перед минтом",
     ],
   },
   grygorii_damekin: {
     name: "Григорий",
     chatId: 5083559046,
-    role: "Owner · Safe Signer 2 (Ledger)",
+    role: "Owner · Safe Signer (Ledger)",
     emoji: "👑",
     steps: [
-      "🔐 *ЭТАП 4 — Подтвердить Safe \\(после Данила\\)*\n1\\. Обнови прошивку Ledger → установи Ethereum \\+ Polygon app\n2\\. Получи invite в Safe от Данила \\(@danii191191\\)\n3\\. Открой [app\\.safe\\.global](https://app.safe.global) → подпиши как Signer 2\n4\\. Пришли адрес Safe в чат \\(@alpariod\\)",
-      "📋 *ЭТАП 5 — Условия займа \\+ Документы*\n5\\. Утверди условия займа: LTV, yield, срок, валюта\n6\\. Подпиши *Loan Agreement* \\(от Александры\\)\n7\\. Подпиши *Assignment\\/Pledge* \\(NFT как залог\\)\n8\\. Подтверди lender — кто переводит USDT\n9\\. Выбери 3\\-го signatory для Safe \\(на твоё усмотрение\\)",
-      "💰 *ЭТАП 5 — Перевод займа*\n10\\. Lender переводит USDT на Safe \\(или кошелёк\\)\n11\\. NFT\\-transfer в залог lender'у \\(2\\-of\\-3 Safe\\)\n12\\. Зафиксируй курс UAH/USD на дату сделки\n13\\. Подтверди получение USDT в чат команды",
+      "⏳ *СЕЙЧАС — Ожидание \\(Этап 1 ещё не завершён\\)*\nАндрей минтит NFT\\. Твои действия начнутся на Этапе 3\\.",
+      "📋 *ЭТАП 3 — Подписание документов \\(после минта\\)*\n1\\. Получи от Александры: Loan Agreement, Assignment, Pledge\n2\\. Проверь суммы: €127,648 итого, 11 дебиторок CCT LLP ↔ ФГ Геніївське\n3\\. Подпиши все 3 документа от имени CCT LLP\n4\\. Верни подписанные PDF Александре для загрузки на Pinata",
+      "💰 *ЭТАП 4 — Выдача займа через Safe*\n1\\. Открой [app\\.safe\\.global](https://app.safe.global) → Safe `0x58D7…e394`\n2\\. Инициируй транзакцию: перевод USDT на кошелёк ФГ Геніївське\n3\\. Подпиши Ledger \\(Signer 2 из 2\\)\n4\\. Дождись подписи Данила → Execute",
     ],
     rules: [
       "👑 Ты Owner — финальное слово по условиям займа",
-      "🔐 Ты Safe Signer 2 \\(Ledger\\) — подписываешь казну",
-      "✋ 3\\-го signatory выбираешь ты",
-      "📝 Подписываешь только после проверки Александры",
+      "🔐 Ты Safe Signer \\(Ledger\\) — подписываешь казну на Этапе 4",
+      "📝 Подписываешь Loan Agreement только ПОСЛЕ завершения минта",
+      "✋ Transaction Builder в Safe открывать только на Этапе 4",
     ],
   },
   sasha_damekina: {
@@ -432,31 +525,31 @@ const TEAM: Record<string, { name: string; chatId: number; role: string; emoji: 
     role: "Legal · Docs",
     emoji: "📋",
     steps: [
-      "📝 *ЭТАП 2 — Loan Agreement*\n1\\. Заполни *Loan Agreement* \\(шаблон есть\\):\n   — Стороны: CCT LLP ↔ ФГ Геніївське\n   — Сумма: \\$15,150 · Срок · Курс UAH/USD\n2\\. Заполни *Assignment of Receivables*\n3\\. Заполни *Pledge Agreement* \\(NFT как залог\\)\n4\\. Подписи обеих сторон: Григорий \\+ Данил от CCT LLP",
-      "📤 *ЭТАП 2 — Загрузка на IPFS*\n5\\. Загрузи подписанные PDF на Pinata\n6\\. Получи CID для каждого документа\n7\\. Передай CID Андрею \\(@alpariod\\) — нужно для metadata JSON\n8\\. Сверь SHA\\-256 хеши загруженных файлов",
-      "⏳ *ЭТАП 6 — Погашение \\(позже\\)*\n9\\. Заёмщик погашает займ \\+ проценты в USDT\n10\\. Сформируй *Investor Proof* \\(закрывающий документ\\)\n11\\. NFT возвращается заёмщику после погашения",
+      "📁 *СЕЙЧАС — Этап 1\\.5 — CID документов для SX\\-011*\nПока Андрей готовится к минту:\n1\\. Открой [pinata\\.cloud](https://pinata.cloud) → папка IT\\-221025\n   `bafybeibj4klqevvuro3bu3rcmlbaxgqzawmphmy5elqidejezcfu6gwlji`\n2\\. Скопируй CID каждого PDF отдельно \\(Contract, CMR, Invoice, T\\-1\\)\n3\\. Передай CID Андрею \\(@alpariod\\) в личку",
+      "📝 *ЭТАП 3 — Юридические документы \\(ПОСЛЕ минта\\)*\n4\\. Заполни *Loan Agreement*: CCT LLP ↔ ФГ Геніївське, €127,648, 30 дней\n5\\. Заполни *Assignment of Receivables* \\(11 дебиторок\\)\n6\\. Заполни *Pledge Agreement* \\(NFT как залог\\)\n7\\. Подписи: Григорий \\+ Данил от CCT LLP\n8\\. Загрузи подписанные PDF на Pinata → передай CID @alpariod",
+      "✅ *ЭТАП 6 — Закрытие \\(позже\\)*\n9\\. Заёмщик погашает займ \\+ проценты\n10\\. Сформируй *Investor Proof* \\(закрывающий документ\\)\n11\\. Загрузи на Pinata → CID в SED\\-Hub",
     ],
     rules: [
-      "📄 Твой output — подписанные PDF \\+ CID на Pinata",
-      "⏱ Андрей не может минтить без твоих CID",
+      "📄 Твой output сейчас: CID документов из папки IT\\-221025 на Pinata",
+      "🚫 НЕ подписывать Loan Agreement до завершения минта NFT",
       "✋ Ты НЕ деплоишь контракты и НЕ управляешь Safe",
-      "🔗 Передай CID сразу как загрузила — не жди",
+      "⚠️ Данные в таблице Александры — единственный источник правды \\(не AI\\-саммари\\)",
     ],
   },
   danii191191: {
     name: "Данил",
     chatId: 152360788,
-    role: "Security · Safe Creator (Signer 1)",
+    role: "Security · Safe Signer (MetaMask)",
     emoji: "🔐",
     steps: [
-      "🔐 *ЭТАП 4 — Создать Safe 2\\-of\\-3*\n1\\. MetaMask → сеть *Polygon Mainnet* \\(chainId 137\\)\n2\\. Открой [app\\.safe\\.global/new\\-safe](https://app.safe.global/new-safe)\n3\\. Выбери сеть: *Polygon*\n4\\. Добавь подписантов:\n   — *Signer 1:* твой кошелёк MetaMask \\(ты\\)\n   — *Signer 2:* кошелёк Григория \\(Ledger\\)\n   — *Signer 3:* на усмотрение Григория\n5\\. Порог: *2\\-of\\-3* → задеплой Safe\n6\\. Пришли invite Григорию \\(@Grygorii\\_Damekin\\)\n7\\. Верифицируй адрес Server Wallet Андрея в Safe",
-      "🛡 *После создания Safe*\n8\\. Дождись подписи Григория \\(Signer 2\\)\n9\\. Убедись что Safe активен на polygonscan\n10\\. Пришли адрес Safe в чат \\(@alpariod\\)",
+      "⏳ *СЕЙЧАС — Ожидание \\(Этапы 1\\-3 ещё не завершены\\)*\n\n✅ Safe уже создан и настроен:\n• Safe: `0x58D716D9FfaFEb1f918E96856b309C2f5c63e394`\n• Ты Signer 1 \\(MetaMask\\)\n• Григорий Signer 2 \\(Ledger\\)\n\n⚠️ НИЧЕГО делать в Safe сейчас НЕ нужно\\.\nСледующее твоё действие — на Этапе 4\\.",
+      "💰 *ЭТАП 4 — Подпись займа \\(после Loan Agreement\\)*\n1\\. Получи уведомление от Григория о транзакции в Safe\n2\\. Открой [app\\.safe\\.global](https://app.safe.global) → Safe `0x58D7…e394`\n3\\. Проверь: сумма, адрес получателя \\(ФГ Геніївське\\), сеть Polygon\n4\\. Подпиши MetaMask \\(Signer 1 из 2\\)\n5\\. После подписи Григория — нажми Execute\n6\\. Скинь txHash в командный чат",
     ],
     rules: [
-      "🔐 Ты Safe Signer 1 — ты создаёшь Safe",
-      "📨 Сначала пришли invite Григорию, потом жди",
-      "✅ Safe готов только когда все 3 signatory подтвердили",
-      "🛡 Ты отвечаешь за безопасность кошельков и контрактов",
+      "🚫 НЕ открывать Transaction Builder в Safe до Этапа 4",
+      "🚫 НЕ вводить ABI в Safe — это было для другой задачи, уже не нужно",
+      "✅ Safe 2\\-of\\-2 настроен правильно с Дня 1 — никаких изменений не нужно",
+      "🔐 Контракт NFT: AccessControl \\(не Ownable\\) — transferOwnership не существует",
     ],
   },
 };
@@ -643,8 +736,8 @@ async function getAIReply(chatId: number, userText: string, userName: string): P
   ];
 
   const response = await getOpenAIClient().chat.completions.create({
-    model: "gpt-4o-mini",
-    max_completion_tokens: 1024,
+    model: "gpt-4o",
+    max_completion_tokens: 2048,
     messages: chatMessages,
   });
 
@@ -670,13 +763,33 @@ const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 // Commands
 bot.command("start", async (ctx) => {
   const name = ctx.from?.first_name ?? "Инвестор";
-  await ctx.reply(
-    `👋 *Привет, ${safe(name)}\\!*\n\n` +
-    `Я — AI\\-ассистент *SX Fund* — платформы торгового финансирования агросектора на Polygon/Centrifuge\\.\n\n` +
-    `Могу показать статус пула, сделки, Oracle события, помочь с траншами, AML и безопасностью\\.\n\n` +
-    `Или просто напиши свой вопрос — отвечу с помощью AI 👇`,
-    { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
-  );
+  const chatId = ctx.chat?.id;
+  const username = ctx.from?.username?.toLowerCase() ?? "";
+
+  const member = Object.entries(TEAM).find(
+    ([k, m]) => m.chatId === chatId || username === k
+  )?.[1];
+
+  if (member) {
+    // Team member — personalised welcome + auto-send their role plan
+    await ctx.reply(
+      `${member.emoji} *Привет, ${safe(member.name)}\\!*\n\n` +
+      `Добро пожаловать в *SX Fund Bot*\\.\n` +
+      `Твоя роль: _${safe(member.role)}_\n\n` +
+      `Показываю твой персональный план 👇`,
+      { parse_mode: "MarkdownV2", link_preview_options: { is_disabled: true } }
+    );
+    await handlePlan(ctx);
+  } else {
+    // Guest / investor — generic welcome
+    await ctx.reply(
+      `👋 *Привет, ${safe(name)}\\!*\n\n` +
+      `Я — AI\\-ассистент *SX Fund* — платформы торгового финансирования агросектора на Polygon/Centrifuge\\.\n\n` +
+      `Могу показать статус пула, сделки, Oracle события, помочь с траншами, AML и безопасностью\\.\n\n` +
+      `Или просто напиши свой вопрос — отвечу с помощью AI 👇`,
+      { parse_mode: "MarkdownV2", reply_markup: mainMenu() }
+    );
+  }
 });
 
 bot.command("status",    handleStatus);
@@ -695,18 +808,51 @@ bot.command("menu",      handleMenu);
 // ─── Callback query router ─────────────────────────────────────────────────────
 // All inline buttons use "cmd:<name>" pattern
 
+async function handleAgentContact(ctx: Context) {
+  const userId = ctx.from?.id;
+  if (!userId) return;
+
+  const ANDREY_ID = 8532055371;
+  if (userId === ANDREY_ID) {
+    await ctx.reply(
+      `📩 *Relay-режим (Андрей)*\n\n` +
+      `Ты администратор\\. Чтобы ответить участнику команды используй:\n` +
+      `/reply <userId> <текст>\n\n` +
+      `Пример:\n` +
+      `/reply 152360788 Данил, вопрос принят — жди ответа\n\n` +
+      `ID участников:\n` +
+      `• Данил: \`152360788\`\n` +
+      `• Александра: \`521990485\`\n` +
+      `• Григорий: \`5083559046\``,
+      { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") }
+    );
+    return;
+  }
+
+  relayPending.add(userId);
+
+  await ctx.reply(
+    `📩 *Связь с агентом*\n\n` +
+    `Напиши свой вопрос или задачу — текст, файл или фото\\.\n` +
+    `Агент получит сообщение через Андрея и ответит\\.\n\n` +
+    `_Отправь /cancel чтобы отменить\\._`,
+    { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("❌ Отмена", "cmd:menu") }
+  );
+}
+
 const CALLBACK_MAP: Record<string, (ctx: Context) => Promise<void>> = {
-  "cmd:status":    handleStatus,
-  "cmd:deals":     handleDeals,
-  "cmd:escrow":    handleEscrow,
-  "cmd:oracle":    handleOracle,
-  "cmd:investors": handleInvestors,
-  "cmd:tranches":  handleTranches,
-  "cmd:security":  handleSecurity,
-  "cmd:plan":      handlePlan,
-  "cmd:help":      handleHelp,
-  "cmd:clear":     handleClear,
-  "cmd:menu":      handleMenu,
+  "cmd:status":        handleStatus,
+  "cmd:deals":         handleDeals,
+  "cmd:escrow":        handleEscrow,
+  "cmd:oracle":        handleOracle,
+  "cmd:investors":     handleInvestors,
+  "cmd:tranches":      handleTranches,
+  "cmd:security":      handleSecurity,
+  "cmd:plan":          handlePlan,
+  "cmd:help":          handleHelp,
+  "cmd:clear":         handleClear,
+  "cmd:menu":          handleMenu,
+  "cmd:agent_contact": handleAgentContact,
 };
 
 bot.on("callback_query:data", async (ctx) => {
@@ -719,32 +865,204 @@ bot.on("callback_query:data", async (ctx) => {
   }
 });
 
-// ─── Free-form text → AI ───────────────────────────────────────────────────────
+// ─── /cancel command ───────────────────────────────────────────────────────────
+
+bot.command("cancel", async (ctx) => {
+  const userId = ctx.from?.id;
+  if (userId) relayPending.delete(userId);
+  await ctx.reply("Отменено.", { reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") });
+});
+
+// ─── /reply command (admin only) ───────────────────────────────────────────────
+// Usage: /reply <userId> <text>
+
+bot.command("reply", async (ctx) => {
+  const ANDREY_ID = 8532055371;
+  if (ctx.from?.id !== ANDREY_ID) {
+    await ctx.reply("🔒 Только для администратора.");
+    return;
+  }
+  const args = ctx.match ?? "";
+  const spaceIdx = args.indexOf(" ");
+  if (spaceIdx === -1) {
+    await ctx.reply("Формат: /reply <userId> <текст>");
+    return;
+  }
+  const targetId = Number(args.slice(0, spaceIdx));
+  const replyText = args.slice(spaceIdx + 1).trim();
+  if (!targetId || !replyText) {
+    await ctx.reply("Формат: /reply <userId> <текст>");
+    return;
+  }
+  try {
+    await bot.api.sendMessage(targetId, `📩 *Ответ от команды SX Fund:*\n\n${replyText}`, {
+      parse_mode: "Markdown",
+      reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu"),
+    });
+    await ctx.reply(`✅ Сообщение отправлено пользователю ${targetId}.`);
+  } catch (err) {
+    logger.error({ err, targetId }, "Failed to relay reply");
+    await ctx.reply(`❌ Не удалось отправить сообщение пользователю ${targetId}.`);
+  }
+});
+
+// ─── Free-form text → relay OR AI ──────────────────────────────────────────────
 
 bot.on("message:text", async (ctx) => {
   const text = ctx.message.text;
   if (text.startsWith("/")) return;
 
+  const userId = ctx.from?.id;
+  const ANDREY_ID = 8532055371;
+
+  // ── Relay mode: forward to Andrey ──
+  if (userId && relayPending.has(userId)) {
+    relayPending.delete(userId);
+    const name = ctx.from?.first_name ?? "Пользователь";
+    const username = ctx.from?.username ? ` (@${ctx.from.username})` : ` [ID: ${userId}]`;
+    try {
+      await bot.api.sendMessage(
+        ANDREY_ID,
+        `📩 *Сообщение агенту*\nОт: ${name}${username}\n\n${text}\n\n` +
+        `_Ответить: /reply ${userId} <текст>_`,
+        { parse_mode: "Markdown" }
+      );
+      await ctx.reply(
+        `✅ Сообщение передано\\. Андрей перенаправит агенту и ответит тебе здесь\\.`,
+        { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") }
+      );
+    } catch (err) {
+      logger.error({ err }, "Relay forward error");
+      await ctx.reply("Не удалось передать сообщение. Напиши напрямую @alpariod.");
+    }
+    return;
+  }
+
+  // ── Normal AI reply ──
   await ctx.replyWithChatAction("typing");
 
   try {
     const chatId = ctx.chat.id;
     const userName = ctx.from?.first_name ?? "User";
     const reply = await getAIReply(chatId, text, userName);
-    const formatted = fmtAI(reply);
-
-    await ctx.reply(formatted, {
-      parse_mode: "Markdown",
-      reply_markup: new InlineKeyboard()
-        .text("📊 Статус", "cmd:status")
-        .text("📋 Сделки", "cmd:deals")
-        .row()
-        .text("◀️ Меню", "cmd:menu"),
-    });
+    await sendAIReply(ctx, reply);
   } catch (err) {
     logger.error({ err }, "AI reply error");
     await ctx.reply("Не удалось получить ответ AI. Попробуй ещё раз.");
   }
+});
+
+// ─── Documents & Photos → save + AI context ────────────────────────────────────
+
+bot.on("message:document", async (ctx) => {
+  const doc = ctx.message.document;
+  const caption = ctx.message.caption ?? "";
+  const chatId = ctx.chat.id;
+  const userId = ctx.from?.id;
+  const userName = ctx.from?.first_name ?? "User";
+  const ANDREY_ID = 8532055371;
+
+  logger.info({ chatId, fileName: doc.file_name, fileId: doc.file_id }, "Document received");
+
+  // ── Relay mode: forward to Andrey ──
+  if (userId && relayPending.has(userId)) {
+    relayPending.delete(userId);
+    const username = ctx.from?.username ? ` (@${ctx.from.username})` : ` [ID: ${userId}]`;
+    try {
+      await bot.api.sendMessage(
+        ANDREY_ID,
+        `📎 *Файл от агента*\nОт: ${userName}${username}\nФайл: ${doc.file_name ?? "без имени"} (${Math.round((doc.file_size ?? 0) / 1024)} КБ)${caption ? `\nКомментарий: ${caption}` : ""}\n\n_Ответить: /reply ${userId} <текст>_`,
+        { parse_mode: "Markdown" }
+      );
+      await bot.api.forwardMessage(ANDREY_ID, chatId, ctx.message.message_id);
+      await ctx.reply(
+        `✅ Файл передан Андрею\\. Он перенаправит агенту и ответит тебе здесь\\.`,
+        { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") }
+      );
+    } catch (err) {
+      logger.error({ err }, "Relay document forward error");
+      await ctx.reply("Не удалось переслать файл. Отправь напрямую @alpariod.");
+    }
+    return;
+  }
+
+  await ctx.replyWithChatAction("typing");
+
+  try {
+    const fileInfo = `[Файл получен: "${doc.file_name ?? "без имени"}", ${Math.round((doc.file_size ?? 0) / 1024)} КБ]`;
+    const userText = caption
+      ? `${fileInfo}\nКомментарий: ${caption}`
+      : `${fileInfo}\nПользователь отправил документ без комментария.`;
+
+    const reply = await getAIReply(chatId, userText, userName);
+    await sendAIReply(ctx, reply);
+  } catch (err) {
+    logger.error({ err }, "Document handler error");
+    await ctx.reply(`✅ Документ получен: *${doc.file_name ?? "файл"}*\nОн сохранён в истории переписки.`, {
+      parse_mode: "Markdown",
+    });
+  }
+});
+
+bot.on("message:photo", async (ctx) => {
+  const photo = ctx.message.photo.at(-1);
+  const caption = ctx.message.caption ?? "";
+  const chatId = ctx.chat.id;
+  const userId = ctx.from?.id;
+  const userName = ctx.from?.first_name ?? "User";
+  const ANDREY_ID = 8532055371;
+
+  logger.info({ chatId, fileId: photo?.file_id }, "Photo received");
+
+  // ── Relay mode: forward to Andrey ──
+  if (userId && relayPending.has(userId)) {
+    relayPending.delete(userId);
+    const username = ctx.from?.username ? ` (@${ctx.from.username})` : ` [ID: ${userId}]`;
+    try {
+      await bot.api.sendMessage(
+        ANDREY_ID,
+        `🖼 *Фото от агента*\nОт: ${userName}${username}${caption ? `\nКомментарий: ${caption}` : ""}\n\n_Ответить: /reply ${userId} <текст>_`,
+        { parse_mode: "Markdown" }
+      );
+      await bot.api.forwardMessage(ANDREY_ID, chatId, ctx.message.message_id);
+      await ctx.reply(
+        `✅ Фото передано Андрею\\. Он перенаправит агенту и ответит тебе здесь\\.`,
+        { parse_mode: "MarkdownV2", reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu") }
+      );
+    } catch (err) {
+      logger.error({ err }, "Relay photo forward error");
+      await ctx.reply("Не удалось переслать фото. Отправь напрямую @alpariod.");
+    }
+    return;
+  }
+
+  await ctx.replyWithChatAction("typing");
+
+  try {
+    const userText = caption
+      ? `[Фото получено]\nКомментарий: ${caption}`
+      : `[Пользователь отправил фото без комментария]`;
+
+    const reply = await getAIReply(chatId, userText, userName);
+    await sendAIReply(ctx, reply);
+  } catch (err) {
+    logger.error({ err }, "Photo handler error");
+    await ctx.reply("✅ Фото получено и сохранено в истории переписки.", { parse_mode: "Markdown" });
+  }
+});
+
+bot.on("message:voice", async (ctx) => {
+  await ctx.reply("🎤 Голосовые сообщения пока не поддерживаются. Напиши текстом или отправь документ.", {
+    reply_markup: new InlineKeyboard().text("◀️ Меню", "cmd:menu"),
+  });
+});
+
+bot.on("message:sticker", async (ctx) => {
+  await ctx.reply("😊", {
+    reply_markup: new InlineKeyboard()
+      .text("📊 Статус", "cmd:status")
+      .text("◀️ Меню", "cmd:menu"),
+  });
 });
 
 // ─── Error handler ─────────────────────────────────────────────────────────────
@@ -796,33 +1114,47 @@ export async function registerWebhook(webhookUrl: string): Promise<void> {
  * Long-polling mode — use in development (Replit).
  * Auto-detects 409 and retries after 35s.
  */
+function launchPolling(attempt = 0): void {
+  const delay = attempt === 0 ? 0 : Math.min(5_000 * 2 ** (attempt - 1), 120_000);
+
+  const doStart = () => {
+    bot.start({
+      drop_pending_updates: attempt === 0,
+      allowed_updates: ["message", "callback_query"],
+      onStart: (info) => {
+        logger.info({ username: info.username, attempt }, "Telegram bot started (polling)");
+      },
+    }).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      const is409 = msg.includes("409");
+      const nextDelay = is409 ? 35_000 : Math.min(5_000 * 2 ** attempt, 120_000);
+      logger.warn({ err: msg, attempt, nextDelayMs: nextDelay }, "Bot polling stopped — will retry");
+      setTimeout(() => launchPolling(attempt + 1), nextDelay);
+    });
+  };
+
+  if (delay > 0) {
+    logger.info({ attempt, delayMs: delay }, "Bot polling retry scheduled");
+    setTimeout(doStart, delay);
+  } else {
+    doStart();
+  }
+}
+
 export function startBot(): void {
   if (!process.env.TELEGRAM_BOT_TOKEN) {
     logger.warn("TELEGRAM_BOT_TOKEN not set — Telegram bot disabled");
     return;
   }
 
-  bot.start({
-    drop_pending_updates: true,
-    allowed_updates: ["message", "callback_query"],
-    onStart: (info) => {
-      logger.info({ username: info.username }, "Telegram bot started (polling)");
-    },
-  }).catch((err: unknown) => {
-    const is409 = err instanceof Error && err.message.includes("409");
-    if (is409) {
-      logger.warn("Bot 409 conflict — retrying in 35s");
-      setTimeout(() => {
-        bot.start({
-          drop_pending_updates: true,
-          allowed_updates: ["message", "callback_query"],
-          onStart: (info) => logger.info({ username: info.username }, "Telegram bot started (retry)"),
-        }).catch((e: unknown) => logger.error({ err: e }, "Bot failed to start after retry"));
-      }, 35_000);
-    } else {
-      logger.error({ err }, "Telegram bot start error");
-    }
+  process.on("unhandledRejection", (reason) => {
+    logger.error({ reason }, "Unhandled promise rejection — bot process continues");
+  });
+
+  process.on("uncaughtException", (err) => {
+    logger.error({ err }, "Uncaught exception — bot process continues");
   });
 
   logger.info("Telegram bot polling started");
+  launchPolling(0);
 }
